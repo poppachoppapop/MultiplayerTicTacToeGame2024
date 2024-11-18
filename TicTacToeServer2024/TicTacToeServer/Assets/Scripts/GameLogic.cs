@@ -15,4 +15,8 @@ public class GameLogic : MonoBehaviour
             NetworkServerProcessing.SendMessageToClient("2,Hello client's world, sincerely your network server", 0, TransportPipeline.ReliableAndInOrder);
     }
 
+    static public void SaveAccountInformationToServer(string accountUsername, string accountPassword)
+    {
+        string accountSaveFile = accountUsername + ".txt";
+    }
 }

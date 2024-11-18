@@ -13,10 +13,10 @@ static public class NetworkServerProcessing
         string[] csv = msg.Split(',');
         int signifier = int.Parse(csv[0]);
 
-        if (signifier == ClientToServerSignifiers.asd)
-        {
+        // if (signifier == ClientToServerSignifiers.asd)
+        // {
 
-        }
+        // }
         // else if (signifier == ClientToServerSignifiers.asd)
         // {
 
@@ -67,12 +67,18 @@ static public class NetworkServerProcessing
 #region Protocol Signifiers
 static public class ClientToServerSignifiers
 {
-    public const int asd = 1;
+    public const int UsernameInput = 1;
+    public const int PasswordInput = 2;
+    public const int RegisterUsernameInput = 3;
+    public const int RegisterPasswordInput = 4;
 }
 
 static public class ServerToClientSignifiers
 {
-    public const int asd = 1;
+    public const int UsernameInput = 1;
+    public const int PasswordInput = 2;
+    public const int RegisterUsernameInput = 3;
+    public const int RegisterPasswordInput = 4;
 }
 
 #endregion
