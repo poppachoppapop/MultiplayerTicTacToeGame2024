@@ -14,20 +14,20 @@ public class AccountLoginLogic : GameLogic
 
     string accountDirectoryPath;
 
-    string[] listOfAccounts;
+    //string[] listOfAccounts;
 
     public void Awake()
     {
         accountDirectoryPath = Application.persistentDataPath + Path.DirectorySeparatorChar + "Accounts";
 
-        if (Directory.Exists(accountDirectoryPath))
-        {   
-            listOfAccounts = Directory.GetFiles(accountDirectoryPath).ToArray();
-        }
-        else
-        {
-            return;
-        }
+        // if (Directory.Exists(accountDirectoryPath))
+        // {   
+        //     string[]listOfAccounts = Directory.GetFiles(accountDirectoryPath).ToArray();
+        // }
+        // else
+        // {
+        //     return;
+        // }
     }
 
     public void Start()
@@ -78,6 +78,7 @@ public class AccountLoginLogic : GameLogic
 
     public void RegisterClientAsNewAccount(string clientUsername, string clientPassword)
     {
+        
         //here, take the clientInstructions and use them to create an account using StreamWriter
         string accountSaveFile = clientUsername + ".txt";
         string accountUsernameAndPassword = conjoinStrings(ClientToServerSignifiers.LoginAccountInfo.ToString(), clientUsername, clientPassword);
@@ -98,7 +99,9 @@ public class AccountLoginLogic : GameLogic
     {
         string accountSaveFile = accountUsername + ".txt";
 
-        foreach (string line in listOfAccounts)
+
+
+        foreach (string line in GetAccountNames())
         {
             string accountFileCurrent = Path.GetFileName(line);
 
@@ -126,5 +129,14 @@ public class AccountLoginLogic : GameLogic
         }
 
         return conjoinedString;
+    }
+
+    public string[] GetAccountNames()
+    {
+        if (Directory.Exists(accountDirectoryPath))
+        {   
+             return Directory.GetFiles(accountDirectoryPath).ToArray();
+        }
+        return null;
     }
 }
