@@ -81,18 +81,16 @@ static public class NetworkClientProcessing
 #region Protocol Signifiers
 static public class ClientToServerSignifiers
 {
-    public const int UsernameInput = 1;
-    public const int PasswordInput = 2;
-    public const int RegisterUsernameInput = 3;
-    public const int RegisterPasswordInput = 4;
+    public const int LoginAccountInfo = 1;
+    public const int RegisterAccountInfo = 2;
 }
 
 static public class ServerToClientSignifiers
 {
-    public const int UsernameInput = 1;
-    public const int PasswordInput = 2;
-    public const int RegisterUsernameInput = 3;
-    public const int RegisterPasswordInput = 4;
+    public const int LoginAttemptSuccessful = 1;
+    public const int LoginAttemptFailed = 2;
+    public const int RegisterAccountSuccessful = 3;
+    public const int RegisterAccountFailed = 4;
 }
 
 #endregion

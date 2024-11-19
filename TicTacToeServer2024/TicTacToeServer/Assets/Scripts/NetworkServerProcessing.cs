@@ -11,18 +11,8 @@ static public class NetworkServerProcessing
         Debug.Log("Network msg received =  " + msg + ", from connection id = " + clientConnectionID + ", from pipeline = " + pipeline);
 
         string[] csv = msg.Split(',');
-        int signifier = int.Parse(csv[0]);
 
-        // if (signifier == ClientToServerSignifiers.asd)
-        // {
-
-        // }
-        // else if (signifier == ClientToServerSignifiers.asd)
-        // {
-
-        // }
-
-        //gameLogic.DoSomething();
+        gameLogic.ProcessMessageFromClient(csv, clientConnectionID);
     }
     static public void SendMessageToClient(string msg, int clientConnectionID, TransportPipeline pipeline)
     {
@@ -62,23 +52,23 @@ static public class NetworkServerProcessing
     }
 
     #endregion
+
+
 }
 
 #region Protocol Signifiers
 static public class ClientToServerSignifiers
 {
-    public const int UsernameInput = 1;
-    public const int PasswordInput = 2;
-    public const int RegisterUsernameInput = 3;
-    public const int RegisterPasswordInput = 4;
+    public const int LoginAccountInfo = 1;
+    public const int RegisterAccountInfo = 2;
 }
 
 static public class ServerToClientSignifiers
 {
-    public const int UsernameInput = 1;
-    public const int PasswordInput = 2;
-    public const int RegisterUsernameInput = 3;
-    public const int RegisterPasswordInput = 4;
+    public const int LoginAttemptSuccessful = 1;
+    public const int LoginAttemptFailed = 2;
+    public const int RegisterAccountSuccessful = 3;
+    public const int RegisterAccountFailed = 4;
 }
 
 #endregion
