@@ -16,6 +16,7 @@ public class GameLogic : MonoBehaviour
     void Start()
     {
         NetworkClientProcessing.SetGameLogic(this);
+        //NetworkClientProcessing.SetGameLogic(AccountLoginLogic);
     }
 
     void Update()
@@ -24,12 +25,14 @@ public class GameLogic : MonoBehaviour
             NetworkClientProcessing.SendMessageToServer("2,Hello client's world, sincerely your network server",  TransportPipeline.ReliableAndInOrder);
     }
 
-    public virtual void ProcessMessageFromClient(string[] clientInstructions, int clientID){}
+    public virtual void ProcessMessageFromServer(string[] clientInstructions, TransportPipeline pipeline){}
+
+    //public virtual void StateManager(){}
 }
+
 
 public enum AccountLoginStateSignifier
 {
     LoginState,
-    RegisterState,
-    FailedLoginState
+    RegisterState
 }

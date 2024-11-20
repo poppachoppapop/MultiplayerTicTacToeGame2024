@@ -14,31 +14,14 @@ public class AccountLoginLogic : GameLogic
 
     string accountDirectoryPath;
 
-    //string[] listOfAccounts;
-
     public void Awake()
     {
         accountDirectoryPath = Application.persistentDataPath + Path.DirectorySeparatorChar + "Accounts";
-
-        // if (Directory.Exists(accountDirectoryPath))
-        // {   
-        //     string[]listOfAccounts = Directory.GetFiles(accountDirectoryPath).ToArray();
-        // }
-        // else
-        // {
-        //     return;
-        // }
     }
 
     public void Start()
     {
         NetworkServerProcessing.SetGameLogic(this);
-    }
-    //function for received login attempt
-    public void CheckIfAccountInformationAlreadyExistsForLogin(string clientMessage, int currentConnectionID)
-    {
-        string[] csv = clientMessage.Split(sepchar);
-        // int signifier = 
     }
 
 
@@ -52,6 +35,25 @@ public class AccountLoginLogic : GameLogic
             //message format (1,username,password)
             string clientUsernameInput = clientInstructions[1];
             string clientPasswordInput = clientInstructions[2];
+
+            string failedLoginMessage = conjoinStrings(
+                ServerToClientSignifiers.LoginAttemptFailed.ToString(), 
+                "login attempt failed, account already exists, please try again."
+                );
+
+            if(AccountAlreadyExists(clientUsernameInput))
+            {
+                LoginClientWithCorrectCredentials(clientID);
+            }
+
+            else if(!AccountAlreadyExists(clientUsernameInput))
+            {
+                NetworkServerProcessing.SendMessageToClient(
+                    failedLoginMessage,
+                    clientID,
+                    TransportPipeline.ReliableAndInOrder
+                );
+            }
         }
 
         else if (signifier == ClientToServerSignifiers.RegisterAccountInfo)
@@ -59,11 +61,7 @@ public class AccountLoginLogic : GameLogic
             string registerUsernameInput = clientInstructions[1];
             string registerPasswordInput = clientInstructions[2];
 
-            if (!AccountAlreadyExists(registerUsernameInput))
-            {
-                RegisterClientAsNewAccount(registerUsernameInput, registerPasswordInput);
-            }
-            else if(AccountAlreadyExists(registerUsernameInput))
+            if(AccountAlreadyExists(registerUsernameInput))
             {
                 NetworkServerProcessing.SendMessageToClient(
                 ServerToClientSignifiers.RegisterAccountFailed.ToString()
@@ -73,7 +71,18 @@ public class AccountLoginLogic : GameLogic
 
                 Debug.Log("account exists");
             }
+            if (!AccountAlreadyExists(registerUsernameInput))
+            {
+                RegisterClientAsNewAccount(registerUsernameInput, registerPasswordInput);
+            }
         }
+    }
+
+    public void LoginClientWithCorrectCredentials(int clientID)
+    {
+        Debug.Log("login successful!");
+
+        NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.LoginAttemptSuccessful.ToString(), clientID, TransportPipeline.ReliableAndInOrder);
     }
 
     public void RegisterClientAsNewAccount(string clientUsername, string clientPassword)
@@ -98,8 +107,6 @@ public class AccountLoginLogic : GameLogic
     public bool AccountAlreadyExists(string accountUsername)
     {
         string accountSaveFile = accountUsername + ".txt";
-
-
 
         foreach (string line in GetAccountNames())
         {

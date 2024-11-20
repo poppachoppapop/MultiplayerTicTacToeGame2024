@@ -59,16 +59,16 @@ static public class NetworkServerProcessing
 #region Protocol Signifiers
 static public class ClientToServerSignifiers
 {
-    public const int LoginAccountInfo = 1;
-    public const int RegisterAccountInfo = 2;
+    public const int LoginAccountInfo = 101;
+    public const int RegisterAccountInfo = 102;
 }
 
 static public class ServerToClientSignifiers
 {
-    public const int LoginAttemptSuccessful = 1;
-    public const int LoginAttemptFailed = 2;
-    public const int RegisterAccountSuccessful = 3;
-    public const int RegisterAccountFailed = 4;
+    public const int LoginAttemptSuccessful = 201;
+    public const int LoginAttemptFailed = 202;
+    public const int RegisterAccountSuccessful = 203;
+    public const int RegisterAccountFailed = 204;
 }
 
 #endregion

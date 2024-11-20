@@ -4,7 +4,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class AccountLoginLogic : MonoBehaviour
+public class AccountLoginLogic : GameLogic
 {
      const char sepchar = ',';
 
@@ -13,18 +13,22 @@ public class AccountLoginLogic : MonoBehaviour
     static GameObject loginButton;
     static GameObject registerButton;
     static GameObject refreshButton;
+    static GameObject titleText;
+    static GameObject subtitleText;
 
     public static AccountLoginStateSignifier currentState;
 
     // Start is called before the first frame update
     void Start()
-    {
-        currentState = AccountLoginStateSignifier.RegisterState;
+    {   
+        //NetworkClientProcessing.SetGameLogic(this);
 
+        currentState = AccountLoginStateSignifier.RegisterState;
 
         Object[] GameObjects = Resources.FindObjectsOfTypeAll(typeof(GameObject));
         foreach (Object obj in GameObjects)
         {
+            
             if (obj.name == "UsernameLoginInput")
             {
                 usernameLoginInputField = (GameObject)obj;
@@ -44,6 +48,14 @@ public class AccountLoginLogic : MonoBehaviour
             else if(obj.name == "RefreshButton")
             {
                 refreshButton = (GameObject)obj;
+            }
+            else if(obj.name == "TitleText")
+            {
+                titleText = (GameObject)obj;
+            }
+            else if(obj.name == "SubtitleText")
+            {
+                subtitleText = (GameObject)obj;
             }
         }
 
@@ -67,18 +79,24 @@ public class AccountLoginLogic : MonoBehaviour
         loginButton.SetActive(false);
         registerButton.SetActive(false);
         refreshButton.SetActive(true);
+        titleText.SetActive(true);
+        subtitleText.SetActive(true);
 
         if (currentState == AccountLoginStateSignifier.LoginState)
         {
             usernameLoginInputField.SetActive(true);
             passwordLoginInputField.SetActive(true);
             loginButton.SetActive(true);
+
+            subtitleText.GetComponent<TextMeshProUGUI>().text = ChangeSubtitleText("Login to start playing!");
         }
         else if (currentState == AccountLoginStateSignifier.RegisterState)
         {
             usernameLoginInputField.SetActive(true);
             passwordLoginInputField.SetActive(true);
             registerButton.SetActive(true);
+
+            subtitleText.GetComponent<TextMeshProUGUI>().text = ChangeSubtitleText("Create an account to play!");
         }
     }
 
@@ -86,20 +104,21 @@ public class AccountLoginLogic : MonoBehaviour
 
     public void LoginButtonPressed()
     {
-        // string playerUsernameInput = conjoinStrings(ClientToServerSignifiers.UsernameInput.ToString(), GetUsernameFromInput());
-        // string playerPasswordInput = conjoinStrings(ClientToServerSignifiers.PasswordInput.ToString(), GetPasswordFromInput());
+        Debug.Log("You have pressed me");
 
-        // if(GetUsernameFromInput() != string.Empty && GetPasswordFromInput() != string.Empty)
-        // {
-        //     Debug.Log("Login from client attempted!");
-        //     NetworkClientProcessing.SendMessageToServer(playerUsernameInput, TransportPipeline.ReliableAndInOrder);
-        //     NetworkClientProcessing.SendMessageToServer(playerPasswordInput, TransportPipeline.ReliableAndInOrder);
-        // }
-        // else
-        // {
-        //     Debug.Log("Login Attempt Failed!");
-        //     NetworkClientProcessing.SendMessageToServer("3, this is a failed login attempt.", TransportPipeline.ReliableAndInOrder);
-        // }
+        string playerUsernameInput = GetUsernameFromInput();
+        string playerPasswordInput = GetPasswordFromInput();
+        string ClientAccountLoginInfo = conjoinStrings(ClientToServerSignifiers.LoginAccountInfo.ToString(), playerUsernameInput, playerPasswordInput);
+
+        if(GetUsernameFromInput() != string.Empty && GetPasswordFromInput() != string.Empty)
+        {
+            Debug.Log("Login from client attempted!");
+            NetworkClientProcessing.SendMessageToServer(ClientAccountLoginInfo, TransportPipeline.ReliableAndInOrder);
+        }
+        else
+        {
+            Debug.Log("Login Attempt Failed!");
+        }
     }
 
     public void RegisterButtonPressed()
@@ -122,8 +141,6 @@ public class AccountLoginLogic : MonoBehaviour
 
     public void RefreshButtonPressed()
     {
-        //RefreshUI();
-
         if(currentState == AccountLoginStateSignifier.LoginState)
         {
             currentState = AccountLoginStateSignifier.RegisterState;
@@ -135,23 +152,14 @@ public class AccountLoginLogic : MonoBehaviour
             currentState = AccountLoginStateSignifier.LoginState;
             Debug.Log("going into login state");
             RefreshUI();
-        }
+        }   
     }
 
 
 
     public static string GetUsernameFromInput()
-    {
-        //string asdf = usernameLoginInputField.GetComponentsInChildren<TextMeshPro>()[0].text;   
-        
+    {   
         string asdf = usernameLoginInputField.GetComponentsInChildren<TextMeshProUGUI>()[1].text;   
-        
-        if (asdf == null)
-        {
-            Debug.Log("ya mama");
-        }
-
-        Debug.Log(asdf);
 
         return asdf;
     }
@@ -159,14 +167,12 @@ public class AccountLoginLogic : MonoBehaviour
     {
         string asdf = passwordLoginInputField.GetComponentsInChildren<TextMeshProUGUI>()[1].text;
 
-        if(asdf == null)
-        {
-            Debug.Log("You fool. You utter incompetent buffoon");
-        }
-
-        Debug.Log(asdf);
-
         return asdf;
+    }
+
+    public static string ChangeSubtitleText(string text)
+    {   
+        return text;
     }
 
     static private string conjoinStrings(params string[] strings)
@@ -184,4 +190,36 @@ public class AccountLoginLogic : MonoBehaviour
 
         return conjoinedString;
     }
+
+    public void LoginSuccessful()
+    {
+
+    }
+
+    public override void ProcessMessageFromServer(string[] clientInstructions, TransportPipeline pipeline)
+    {
+        int signifier = int.Parse(clientInstructions[0].ToString());
+
+        //send player to waiting room state
+        if(signifier == ServerToClientSignifiers.LoginAttemptSuccessful)
+        {
+            
+        }
+        //show UI message to player and prompt them to try again
+        else if(signifier == ServerToClientSignifiers.LoginAttemptFailed)
+        {
+            //RefreshUI();
+        }
+        //tell player that a new account has been created and send them to the login screen
+        else if(signifier == ServerToClientSignifiers.RegisterAccountSuccessful)
+        {
+            currentState = AccountLoginStateSignifier.LoginState;
+        }
+        //refresh the register input fields and show UI message to player prompting them to retry
+        else if(signifier == ServerToClientSignifiers.RegisterAccountFailed)
+        {
+
+        }
+    }
 }
+
