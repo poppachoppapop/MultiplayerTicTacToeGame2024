@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 
-public class TicTacToeBoardLogic : MonoBehaviour
+public class TicTacToeBoardLogic : GameLogic
 {
     public Button[] ticTacToeSquares;
 
