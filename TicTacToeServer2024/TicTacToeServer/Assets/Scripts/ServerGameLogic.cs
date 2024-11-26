@@ -37,16 +37,16 @@ public class ServerGameLogic : GameLogic
             string clientPasswordInput = clientInstructions[2];
 
             string failedLoginMessage = conjoinStrings(
-                ServerToClientSignifiers.AccountErrorMessage.ToString(), 
+                ServerToClientSignifiers.AccountErrorMessage.ToString(),
                 "login attempt failed, account already exists, please try again."
                 );
 
-            if(AccountAlreadyExists(clientUsernameInput))
+            if (AccountAlreadyExists(clientUsernameInput))
             {
                 LoginClientWithCorrectCredentials(clientID);
             }
 
-            else if(!AccountAlreadyExists(clientUsernameInput))
+            else if (!AccountAlreadyExists(clientUsernameInput))
             {
                 NetworkServerProcessing.SendMessageToClient(
                     failedLoginMessage,
@@ -61,7 +61,7 @@ public class ServerGameLogic : GameLogic
             string registerUsernameInput = clientInstructions[1];
             string registerPasswordInput = clientInstructions[2];
 
-            if(AccountAlreadyExists(registerUsernameInput))
+            if (AccountAlreadyExists(registerUsernameInput))
             {
                 NetworkServerProcessing.SendMessageToClient(
                 ServerToClientSignifiers.AccountErrorMessage.ToString()
@@ -78,6 +78,7 @@ public class ServerGameLogic : GameLogic
         }
     }
 
+    #region Login Stuff
     public void LoginClientWithCorrectCredentials(int clientID)
     {
         Debug.Log("login successful!");
@@ -87,7 +88,7 @@ public class ServerGameLogic : GameLogic
 
     public void RegisterClientAsNewAccount(string clientUsername, string clientPassword)
     {
-        
+
         //here, take the clientInstructions and use them to create an account using StreamWriter
         string accountSaveFile = clientUsername + ".txt";
         string accountUsernameAndPassword = conjoinStrings(ClientToServerSignifiers.LoginAccountInfo.ToString(), clientUsername, clientPassword);
@@ -141,9 +142,12 @@ public class ServerGameLogic : GameLogic
     public string[] GetAccountNames()
     {
         if (Directory.Exists(accountDirectoryPath))
-        {   
-             return Directory.GetFiles(accountDirectoryPath).ToArray();
+        {
+            return Directory.GetFiles(accountDirectoryPath).ToArray();
         }
         return null;
     }
+    #endregion
+
+    
 }

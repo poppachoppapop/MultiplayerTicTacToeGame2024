@@ -1,8 +1,10 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Object = UnityEngine.Object;
 
 public class TicTacToeGameLogic : GameLogic
 {
@@ -20,10 +22,14 @@ public class TicTacToeGameLogic : GameLogic
     static GameObject accountLoginRegisterCanvas;
     static GameObject waitingRoomCanvas;
     static GameObject ticTacToeBoardCanvas;
+
     //Waiting Room GameObjects
+    static GameObject RoomNameInputField;
+    static GameObject WaitingRoomBackButton;
+    static GameObject CreateRoomButton;
 
     //TicTacToe GameObjects
-
+    static Button[] ticTacToePlaySpaces;
 
     public static AccountLoginStateSignifier currentLoginState;
     public static GameStateManager currentGameState;
@@ -54,7 +60,7 @@ public class TicTacToeGameLogic : GameLogic
             }
             #endregion
 
-            #region account login stuff
+            #region account login game objects
             else if (obj.name == "UsernameLoginInput")
             {
                 usernameLoginInputField = (GameObject)obj;
@@ -84,15 +90,28 @@ public class TicTacToeGameLogic : GameLogic
                 subtitleText = (GameObject)obj;
             }
             #endregion
+
+            #region waiting room game objects
+
+            else if (obj.name == "RoomNameCreator")
+            {
+                RoomNameInputField = (GameObject)obj;
+            }
+            else if (obj.name == "WaitingRoomBackButton")
+            {
+                WaitingRoomBackButton = (GameObject)obj;
+            }
+            else if (obj.name == "CreateRoomButton")
+            {
+                CreateRoomButton = (GameObject)obj;
+            }
+
+            #endregion
         }
 
         loginButton.GetComponent<Button>().onClick.AddListener(LoginButtonPressed);
         registerButton.GetComponent<Button>().onClick.AddListener(RegisterButtonPressed);
         refreshButton.GetComponent<Button>().onClick.AddListener(RefreshButtonPressed);
-
-        // accountLoginRegisterCanvas = GameObject.Find("LoginCanvas").GetComponent<Canvas>();
-        // waitingRoomCanvas = GameObject.Find("WaitingRoomCanvas").GetComponent<Canvas>();
-        // ticTacToeBoardCanvas = GameObject.Find("GameplayBoard").GetComponent<Canvas>();
 
         RefreshUI();
         SetActiveGameCanvas();
@@ -151,7 +170,7 @@ public class TicTacToeGameLogic : GameLogic
     }
 
 
-
+    #region Login / Register Logics
     public void LoginButtonPressed()
     {
         Debug.Log("You have pressed me");
@@ -227,6 +246,7 @@ public class TicTacToeGameLogic : GameLogic
         return text;
     }
 
+    #endregion
     static private string conjoinStrings(params string[] strings)
     {
         string conjoinedString = "";
@@ -243,10 +263,31 @@ public class TicTacToeGameLogic : GameLogic
         return conjoinedString;
     }
 
-    public void LoginSuccessful()
+    #region Waiting Room Logics
+    public static string GetRoomNameFromInput()
     {
+        string roomNameInput = RoomNameInputField.GetComponentsInChildren<TextMeshProUGUI>()[1].text;
 
+        return roomNameInput;
     }
+
+    public void CreateRoomButtonPressed()
+    {
+        string clientRoomInput = GetRoomNameFromInput();
+        string clientRoomNameInfo = conjoinStrings(ClientToServerSignifiers.CheckIfRoomAvailable + clientRoomInput);
+
+        if(GetRoomNameFromInput() != string.Empty)
+        {
+            Debug.Log("attempting to create room with name: " + GetRoomNameFromInput());
+            NetworkClientProcessing.SendMessageToServer(clientRoomNameInfo, TransportPipeline.ReliableAndInOrder);
+        }
+    }
+
+    #endregion
+
+    #region TicTacToeGame Logics
+
+    #endregion
 
     public void SetActiveGameCanvas()
     {
@@ -271,11 +312,6 @@ public class TicTacToeGameLogic : GameLogic
             waitingRoomCanvas.SetActive(false);
             accountLoginRegisterCanvas.SetActive(false);
         }
-    }
-
-    public void ChangeCurrentGameCanvas()
-    {
-
     }
 
     public override void ProcessMessageFromServer(string[] clientInstructions, TransportPipeline pipeline)
@@ -309,6 +345,18 @@ public class TicTacToeGameLogic : GameLogic
                 }
             }
         }
+        #endregion
+
+        #region Waiting Room messages from server
+
+
+
+        #endregion
+
+        #region Tic Tac Toe Messages From Server
+
+
+
         #endregion
     }
 }
