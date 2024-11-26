@@ -8,7 +8,7 @@ using System.Linq;
 
 
 
-public class AccountLoginLogic : GameLogic
+public class ServerGameLogic : GameLogic
 {
     const char sepchar = ',';
 
@@ -37,7 +37,7 @@ public class AccountLoginLogic : GameLogic
             string clientPasswordInput = clientInstructions[2];
 
             string failedLoginMessage = conjoinStrings(
-                ServerToClientSignifiers.LoginAttemptFailed.ToString(), 
+                ServerToClientSignifiers.AccountErrorMessage.ToString(), 
                 "login attempt failed, account already exists, please try again."
                 );
 
@@ -64,7 +64,7 @@ public class AccountLoginLogic : GameLogic
             if(AccountAlreadyExists(registerUsernameInput))
             {
                 NetworkServerProcessing.SendMessageToClient(
-                ServerToClientSignifiers.RegisterAccountFailed.ToString()
+                ServerToClientSignifiers.AccountErrorMessage.ToString()
                 + ",register attempt failed, account already exists, please try again.",
                 clientID,
                 TransportPipeline.ReliableAndInOrder);
