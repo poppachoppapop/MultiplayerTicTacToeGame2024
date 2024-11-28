@@ -19,6 +19,7 @@ public class TicTacToeGameLogic : GameLogic
     static GameObject titleText;
     static GameObject subtitleText;
 
+    //different state canvas
     static GameObject accountLoginRegisterCanvas;
     static GameObject waitingRoomCanvas;
     static GameObject ticTacToeBoardCanvas;
@@ -109,9 +110,14 @@ public class TicTacToeGameLogic : GameLogic
             #endregion
         }
 
+        //login canvas buttons
         loginButton.GetComponent<Button>().onClick.AddListener(LoginButtonPressed);
         registerButton.GetComponent<Button>().onClick.AddListener(RegisterButtonPressed);
         refreshButton.GetComponent<Button>().onClick.AddListener(RefreshButtonPressed);
+
+        //waiting room buttons
+        CreateRoomButton.GetComponent<Button>().onClick.AddListener(CreateRoomButtonPressed);
+        WaitingRoomBackButton.GetComponent<Button>().onClick.AddListener(WaitingRoomBackButtonPressed);
 
         RefreshUI();
         SetActiveGameCanvas();
@@ -274,13 +280,19 @@ public class TicTacToeGameLogic : GameLogic
     public void CreateRoomButtonPressed()
     {
         string clientRoomInput = GetRoomNameFromInput();
-        string clientRoomNameInfo = conjoinStrings(ClientToServerSignifiers.CheckIfRoomAvailable + clientRoomInput);
+        string clientRoomNameInfo = conjoinStrings(ClientToServerSignifiers.CheckIfRoomAvailable.ToString(), clientRoomInput);
 
         if(GetRoomNameFromInput() != string.Empty)
         {
             Debug.Log("attempting to create room with name: " + GetRoomNameFromInput());
             NetworkClientProcessing.SendMessageToServer(clientRoomNameInfo, TransportPipeline.ReliableAndInOrder);
         }
+    }
+
+    public void WaitingRoomBackButtonPressed()
+    {
+        currentGameState = GameStateManager.AccountLoginLogic;
+        SetActiveGameCanvas();
     }
 
     #endregion
