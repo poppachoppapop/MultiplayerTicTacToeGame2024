@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 using Object = UnityEngine.Object;
@@ -25,14 +26,22 @@ public class TicTacToeGameLogic : GameLogic
     static GameObject ticTacToeBoardCanvas;
 
     //Waiting Room GameObjects
-    static GameObject RoomNameInputField;
-    static GameObject WaitingRoomBackButton;
-    static GameObject CreateRoomButton;
+    static GameObject roomNameInputField;
+    static GameObject waitingRoomBackButton;
+    static GameObject createRoomButton;
+    static GameObject memeText;
+    static GameObject memeImage;
+    static GameObject waitingForPlayer2Text;
+
 
     //TicTacToe GameObjects
+
+    static GameObject listOfPlaySpaces;
     static Button[] ticTacToePlaySpaces;
 
     public static AccountLoginStateSignifier currentLoginState;
+    public static WaitingRoomLogicState currentWaitingRoomState;
+    public static TicTacToeGameState currentTicTacToeGameState;
     public static GameStateManager currentGameState;
 
     // Start is called before the first frame update
@@ -96,16 +105,37 @@ public class TicTacToeGameLogic : GameLogic
 
             else if (obj.name == "RoomNameCreator")
             {
-                RoomNameInputField = (GameObject)obj;
+                roomNameInputField = (GameObject)obj;
             }
             else if (obj.name == "WaitingRoomBackButton")
             {
-                WaitingRoomBackButton = (GameObject)obj;
+                waitingRoomBackButton = (GameObject)obj;
             }
             else if (obj.name == "CreateRoomButton")
             {
-                CreateRoomButton = (GameObject)obj;
+                createRoomButton = (GameObject)obj;
             }
+            else if (obj.name == "MemeImage")
+            {
+                memeImage = (GameObject)obj;
+            }
+            else if (obj.name == "MemeText")
+            {
+                memeText = (GameObject)obj;
+            }
+            else if (obj.name == "WaitingForPlayer2Text")
+            {
+                waitingForPlayer2Text = (GameObject)obj;
+            }
+            #endregion
+
+            #region tic tac toe board objects
+
+            else if (obj.name == "ListOfPlaySpaces")
+            {
+                listOfPlaySpaces = (GameObject)obj;
+            }
+
 
             #endregion
         }
@@ -116,8 +146,8 @@ public class TicTacToeGameLogic : GameLogic
         refreshButton.GetComponent<Button>().onClick.AddListener(RefreshButtonPressed);
 
         //waiting room buttons
-        CreateRoomButton.GetComponent<Button>().onClick.AddListener(CreateRoomButtonPressed);
-        WaitingRoomBackButton.GetComponent<Button>().onClick.AddListener(WaitingRoomBackButtonPressed);
+        createRoomButton.GetComponent<Button>().onClick.AddListener(CreateRoomButtonPressed);
+        waitingRoomBackButton.GetComponent<Button>().onClick.AddListener(WaitingRoomBackButtonPressed);
 
         RefreshUI();
         SetActiveGameCanvas();
@@ -167,10 +197,31 @@ public class TicTacToeGameLogic : GameLogic
         else if (currentGameState == GameStateManager.WaitingRoomLogic)
         {
             waitingRoomCanvas.SetActive(true);
+            if (currentWaitingRoomState == WaitingRoomLogicState.WaitingForNewPlayerState)
+            {
+                waitingForPlayer2Text.SetActive(true);
+
+                roomNameInputField.SetActive(false);
+                waitingRoomBackButton.SetActive(false);
+                createRoomButton.SetActive(false);
+                memeImage.SetActive(false);
+                memeText.SetActive(false);
+            }
         }
         else if (currentGameState == GameStateManager.TicTacToeBoardLogic)
         {
             ticTacToeBoardCanvas.SetActive(true);
+
+            if (currentTicTacToeGameState == TicTacToeGameState.WaitingForTurnState)
+            {
+                listOfPlaySpaces.SetActive(true);
+                waitingForPlayer2Text.SetActive(false);
+            }
+            else if (currentTicTacToeGameState == TicTacToeGameState.SelectingSquareTurn)
+            {
+                listOfPlaySpaces.SetActive(true);
+                waitingForPlayer2Text.SetActive(false);
+            }
         }
 
     }
@@ -272,7 +323,7 @@ public class TicTacToeGameLogic : GameLogic
     #region Waiting Room Logics
     public static string GetRoomNameFromInput()
     {
-        string roomNameInput = RoomNameInputField.GetComponentsInChildren<TextMeshProUGUI>()[1].text;
+        string roomNameInput = roomNameInputField.GetComponentsInChildren<TextMeshProUGUI>()[1].text;
 
         return roomNameInput;
     }
@@ -282,7 +333,7 @@ public class TicTacToeGameLogic : GameLogic
         string clientRoomInput = GetRoomNameFromInput();
         string clientRoomNameInfo = conjoinStrings(ClientToServerSignifiers.CheckIfRoomAvailable.ToString(), clientRoomInput);
 
-        if(GetRoomNameFromInput() != string.Empty)
+        if (GetRoomNameFromInput() != string.Empty)
         {
             Debug.Log("attempting to create room with name: " + GetRoomNameFromInput());
             NetworkClientProcessing.SendMessageToServer(clientRoomNameInfo, TransportPipeline.ReliableAndInOrder);
@@ -361,7 +412,22 @@ public class TicTacToeGameLogic : GameLogic
 
         #region Waiting Room messages from server
 
-
+        else if (currentGameState == GameStateManager.WaitingRoomLogic)
+        {
+            if (signifier == ServerToClientSignifiers.waitingForNewPlayer)
+            {
+                currentWaitingRoomState = WaitingRoomLogicState.WaitingForNewPlayerState;
+                SetActiveGameCanvas();
+                RefreshUI();
+            }
+            else if (signifier == ServerToClientSignifiers.StartGame)
+            {
+                currentGameState = GameStateManager.TicTacToeBoardLogic;
+                currentTicTacToeGameState = TicTacToeGameState.WaitingForTurnState;
+                SetActiveGameCanvas();
+                RefreshUI();
+            }
+        }
 
         #endregion
 

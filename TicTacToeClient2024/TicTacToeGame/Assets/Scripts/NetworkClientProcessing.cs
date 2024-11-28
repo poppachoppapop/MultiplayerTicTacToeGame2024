@@ -74,10 +74,9 @@ static public class ClientToServerSignifiers
     public const int LoginAccountInfo = 101;
     public const int RegisterAccountInfo = 102;
     public const int CheckIfRoomAvailable = 103;
-    public const int StartGame = 104;
+    public const int SendMove = 104;
     public const int ExitGame = 105;
-    public const int SendMove = 106;
-    public const int ResetGame = 107;
+    public const int ResetGame = 106;
 
 }
 
@@ -86,10 +85,8 @@ static public class ServerToClientSignifiers
     public const int LoginAttemptSuccessful = 201;
     public const int RegisterAccountSuccessful = 202;
     public const int AccountErrorMessage = 203;
-    public const int CreateAvailableRoom = 204;
-    public const int JoinAvailableRoom = 205;
-
-    
+    public const int waitingForNewPlayer = 204;
+    public const int StartGame = 205;
 }
 
 #endregion

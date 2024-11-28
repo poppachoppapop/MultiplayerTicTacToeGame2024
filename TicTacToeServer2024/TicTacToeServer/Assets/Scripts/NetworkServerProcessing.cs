@@ -72,9 +72,8 @@ static public class ServerToClientSignifiers
     public const int LoginAttemptSuccessful = 201;
     public const int RegisterAccountSuccessful = 202;
     public const int AccountErrorMessage = 203;
-    public const int CreateAvailableRoom = 204;
-    public const int JoinAvailableRoom = 205;
-    public const int StartGame = 206;
+    public const int waitingForNewPlayer = 204;
+    public const int StartGame = 205;
 }
 
 #endregion

@@ -187,7 +187,6 @@ public class ServerGameLogic : GameLogic
 
     public bool RoomAlreadyExists(string roomName)
     {
-
         if (roomDictionary.ContainsKey(roomName))
         {
             return true;
@@ -200,6 +199,8 @@ public class ServerGameLogic : GameLogic
     {
 
         GameRoom newlyCreatedRoom = new GameRoom(roomName, playersInServer[clientID], gameplayBoard);
+
+        string newRoomCreationMessage = conjoinStrings(ServerToClientSignifiers.waitingForNewPlayer.ToString(), "room created, waiting for new player...");
 
         for (int x = 0; x < 3; x++)
         {
@@ -214,22 +215,37 @@ public class ServerGameLogic : GameLogic
         Debug.Log(clientID + roomName);
 
         Debug.Log("Created new room!");
+
+        NetworkServerProcessing.SendMessageToClient(newRoomCreationMessage,clientID, TransportPipeline.ReliableAndInOrder);
     }
 
     public void SendPlayerToExistingGameRoom(int clientID, string roomName)
     {
         roomDictionary[roomName].AddPlayer2(playersInServer[clientID]);
 
+        string startGameMessage = conjoinStrings(ServerToClientSignifiers.StartGame.ToString(), "starting game");
+
         //start game 
         Debug.Log("starting game now.");
 
+        if (ReadyToStartGame(roomDictionary[roomName]))
+        {
+            NetworkServerProcessing.SendMessageToClient(startGameMessage, roomDictionary[roomName].player1.clientId, TransportPipeline.ReliableAndInOrder);
+            NetworkServerProcessing.SendMessageToClient(startGameMessage, roomDictionary[roomName].player2.clientId, TransportPipeline.ReliableAndInOrder);
+        }
+    }
+
+    public bool ReadyToStartGame(GameRoom room)
+    {
+        if (room.player2 != null)
+        {
+            return true;
+        }
+
+        return false;
     }
 
     #endregion
 
-    //requirements for a room:
-    //player 1
-    //player 2
-    //game board
 
 }

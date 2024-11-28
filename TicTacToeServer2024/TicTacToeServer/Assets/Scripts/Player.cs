@@ -6,6 +6,7 @@ public class Player
 {
     public int clientId;
     public string clientPlayerName;
+    public GameRoom currentGameRoom;
 
     public Player(int clientId, string clientPlayerName) 
     {
