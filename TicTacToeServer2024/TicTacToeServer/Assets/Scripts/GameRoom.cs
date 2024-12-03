@@ -39,6 +39,7 @@ public class GameRoom
 
     public void PlayerSentMove(short x, short y)
     {
+
         string updateAllClientBoards = null;
 
         if (currentTurn == player1)
@@ -58,8 +59,18 @@ public class GameRoom
             player2Move.ToString());
         }
 
+
         NetworkServerProcessing.SendMessageToClient(updateAllClientBoards, player1.clientId, TransportPipeline.ReliableAndInOrder);
         NetworkServerProcessing.SendMessageToClient(updateAllClientBoards, player2.clientId, TransportPipeline.ReliableAndInOrder);
+
+        if (currentTurn == player1)
+        {
+            SetPlayerTurn(player2);
+        }
+        else
+        {
+            SetPlayerTurn(player1);
+        }
     }
 
     public void CheckTicTacToeWinCondition()

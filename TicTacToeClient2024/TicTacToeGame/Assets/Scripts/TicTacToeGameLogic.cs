@@ -434,7 +434,12 @@ public class TicTacToeGameLogic : GameLogic
         {
             for (int y = 0; y < 3; y++)
             {
-                ticTacToePlaySpaces[x, y].GetComponent<Button>().enabled = true;
+                string boxTicks = ticTacToePlaySpaces[x, y].GetComponentInChildren<TextMeshProUGUI>().text;
+
+                if(boxTicks != "X" && boxTicks != "O")
+                {
+                    ticTacToePlaySpaces[x, y].GetComponent<Button>().enabled = true;
+                }
             }
         }
     }
@@ -454,6 +459,7 @@ public class TicTacToeGameLogic : GameLogic
     {
         string moveToSend = conjoinStrings(ClientToServerSignifiers.SendMove.ToString(), x.ToString(), y.ToString());
         NetworkClientProcessing.SendMessageToServer(moveToSend, TransportPipeline.ReliableAndInOrder);
+        DisablePlayButtons();
     }
 
     public void UpdateGameBoard(short x, short y, short playerMove)
@@ -462,7 +468,7 @@ public class TicTacToeGameLogic : GameLogic
         {
             ticTacToePlaySpaces[x, y].GetComponentInChildren<TextMeshProUGUI>().text = "X";
         }
-        else if(playerMove.ToString() == player2.ToString())
+        else if (playerMove.ToString() == player2.ToString())
         {
             ticTacToePlaySpaces[x, y].GetComponentInChildren<TextMeshProUGUI>().text = "O";
         }
