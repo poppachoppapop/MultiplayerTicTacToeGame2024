@@ -13,4 +13,9 @@ public class Player
         this.clientId = clientId;
         this.clientPlayerName = clientPlayerName;
     }
+
+    public void SetCurrentGameRoom(GameRoom currentGameRoom)
+    {
+        this.currentGameRoom = currentGameRoom;
+    }
 }

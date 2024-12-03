@@ -22,11 +22,13 @@ public class GameRoom
     {
         this.roomName = roomName;
         this.player1 = player1;
+        player1.SetCurrentGameRoom(this);
     }
 
     public void AddPlayer2(Player player2)
     {
         this.player2 = player2;
+        player2.SetCurrentGameRoom(this);
     }
 
     public void OnGameStart()
@@ -35,9 +37,29 @@ public class GameRoom
         ResetGameBoard();
     }
 
-    public void UpdateGameBoard()
+    public void PlayerSentMove(short x, short y)
     {
-        
+        string updateAllClientBoards = null;
+
+        if (currentTurn == player1)
+        {
+            SetMoveOnBoard(x, y, player1Move);
+            updateAllClientBoards = ServerGameLogic.conjoinStrings(ServerToClientSignifiers.UpdateClientBoards.ToString(),
+            x.ToString(),
+            y.ToString(),
+            player1Move.ToString());
+        }
+        else
+        {
+            SetMoveOnBoard(x, y, player2Move);
+            updateAllClientBoards = ServerGameLogic.conjoinStrings(ServerToClientSignifiers.UpdateClientBoards.ToString(),
+            x.ToString(),
+            y.ToString(),
+            player2Move.ToString());
+        }
+
+        NetworkServerProcessing.SendMessageToClient(updateAllClientBoards, player1.clientId, TransportPipeline.ReliableAndInOrder);
+        NetworkServerProcessing.SendMessageToClient(updateAllClientBoards, player2.clientId, TransportPipeline.ReliableAndInOrder);
     }
 
     public void CheckTicTacToeWinCondition()
@@ -55,6 +77,13 @@ public class GameRoom
             }
         }
     }
+
+    public void SetMoveOnBoard(short x, short y, short playerMove)
+    {
+        gameplayBoard[x, y] = playerMove;
+    }
+
+
 
     public void SetPlayerTurn(Player player)
     {

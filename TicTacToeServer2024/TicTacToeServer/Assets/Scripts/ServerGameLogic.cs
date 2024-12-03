@@ -108,7 +108,12 @@ public class ServerGameLogic : GameLogic
 
         else if (signifier == ClientToServerSignifiers.SendMove)
         {
-            string acceptedMove = clientInstructions[1];
+            //string acceptedMove = clientInstructions[1];
+
+            short xValue = short.Parse(clientInstructions[1]);
+            short yValue = short.Parse(clientInstructions[2]);
+
+            playersInServer[clientID].currentGameRoom.PlayerSentMove(xValue, yValue);
         }
 
         else if (signifier == ClientToServerSignifiers.ExitGame)
@@ -175,7 +180,7 @@ public class ServerGameLogic : GameLogic
         return false;
     }
 
-    static private string conjoinStrings(params string[] strings)
+    static public string conjoinStrings(params string[] strings)
     {
         string conjoinedString = "";
 

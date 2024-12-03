@@ -6514,6 +6514,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f16c8992bc700a42ae28f6db6d39d4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  listOfPlaySpaces: {fileID: 0}
+  currentLoginState: 0
+  currentWaitingRoomState: 0
+  currentTicTacToeGameState: 0
+  currentGameState: 0
 --- !u!1 &1888117129
 GameObject:
   m_ObjectHideFlags: 0

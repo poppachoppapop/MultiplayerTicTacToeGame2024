@@ -11,6 +11,11 @@ public class TicTacToeGameLogic : GameLogic
 {
     const char sepchar = ',';
 
+    short myTurn = 0;
+    short player1 = 1;
+    short player2 = 2;
+
+
     //Account Login GameObjects
     GameObject usernameLoginInputField;
     GameObject passwordLoginInputField;
@@ -35,7 +40,6 @@ public class TicTacToeGameLogic : GameLogic
 
 
     //TicTacToe GameObjects
-
     public GameObject listOfPlaySpaces;
     GameObject[,] ticTacToePlaySpaces = new GameObject[3, 3];
     GameObject gameplayBackButton;
@@ -159,42 +163,51 @@ public class TicTacToeGameLogic : GameLogic
             if (obj.name == "TopLeftBox")
             {
                 ticTacToePlaySpaces[0, 0] = (GameObject)obj;
+                obj.GetComponent<Button>().onClick.AddListener(delegate { SendMove(0, 0); });
             }
             else if (obj.name == "TopMiddleBox")
             {
                 ticTacToePlaySpaces[0, 1] = (GameObject)obj;
+                obj.GetComponent<Button>().onClick.AddListener(delegate { SendMove(0, 1); });
             }
             else if (obj.name == "TopRightBox")
             {
                 ticTacToePlaySpaces[0, 2] = (GameObject)obj;
+                obj.GetComponent<Button>().onClick.AddListener(delegate { SendMove(0, 2); });
             }
             else if (obj.name == "MiddleLeftBox")
             {
                 ticTacToePlaySpaces[1, 0] = (GameObject)obj;
+                obj.GetComponent<Button>().onClick.AddListener(delegate { SendMove(1, 0); });
             }
             else if (obj.name == "MiddleBox")
             {
                 ticTacToePlaySpaces[1, 1] = (GameObject)obj;
+                obj.GetComponent<Button>().onClick.AddListener(delegate { SendMove(1, 1); });
             }
             else if (obj.name == "MiddleRightBox")
             {
                 ticTacToePlaySpaces[1, 2] = (GameObject)obj;
+                obj.GetComponent<Button>().onClick.AddListener(delegate { SendMove(1, 2); });
             }
             else if (obj.name == "BottomLeftBox")
             {
                 ticTacToePlaySpaces[2, 0] = (GameObject)obj;
+                obj.GetComponent<Button>().onClick.AddListener(delegate { SendMove(2, 0); });
             }
             else if (obj.name == "BottomMiddleBox")
             {
                 ticTacToePlaySpaces[2, 1] = (GameObject)obj;
+                obj.GetComponent<Button>().onClick.AddListener(delegate { SendMove(2, 1); });
             }
             else if (obj.name == "BottomRightBox")
             {
                 ticTacToePlaySpaces[2, 2] = (GameObject)obj;
+                obj.GetComponent<Button>().onClick.AddListener(delegate { SendMove(2, 2); });
             }
 
             #endregion
-            
+
         }
 
         //login canvas buttons
@@ -437,6 +450,24 @@ public class TicTacToeGameLogic : GameLogic
         }
     }
 
+    public void SendMove(short x, short y)
+    {
+        string moveToSend = conjoinStrings(ClientToServerSignifiers.SendMove.ToString(), x.ToString(), y.ToString());
+        NetworkClientProcessing.SendMessageToServer(moveToSend, TransportPipeline.ReliableAndInOrder);
+    }
+
+    public void UpdateGameBoard(short x, short y, short playerMove)
+    {
+        if (playerMove.ToString() == player1.ToString())
+        {
+            ticTacToePlaySpaces[x, y].GetComponentInChildren<TextMeshProUGUI>().text = "X";
+        }
+        else if(playerMove.ToString() == player2.ToString())
+        {
+            ticTacToePlaySpaces[x, y].GetComponentInChildren<TextMeshProUGUI>().text = "O";
+        }
+    }
+
     #endregion
 
     public void SetActiveGameCanvas()
@@ -535,7 +566,7 @@ public class TicTacToeGameLogic : GameLogic
             //updating client side boards according to servers current state
             else if (signifier == ServerToClientSignifiers.UpdateClientBoards)
             {
-
+                UpdateGameBoard(short.Parse(clientInstructions[1]), short.Parse(clientInstructions[2]), short.Parse(clientInstructions[3]));
             }
             else if (signifier == ServerToClientSignifiers.ResetGame)
             {
