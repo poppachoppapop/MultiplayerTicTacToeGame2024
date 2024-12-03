@@ -12,37 +12,41 @@ public class TicTacToeGameLogic : GameLogic
     const char sepchar = ',';
 
     //Account Login GameObjects
-    static GameObject usernameLoginInputField;
-    static GameObject passwordLoginInputField;
-    static GameObject loginButton;
-    static GameObject registerButton;
-    static GameObject refreshButton;
-    static GameObject titleText;
-    static GameObject subtitleText;
+    GameObject usernameLoginInputField;
+    GameObject passwordLoginInputField;
+    GameObject loginButton;
+    GameObject registerButton;
+    GameObject refreshButton;
+    GameObject titleText;
+    GameObject subtitleText;
 
     //different state canvas
-    static GameObject accountLoginRegisterCanvas;
-    static GameObject waitingRoomCanvas;
-    static GameObject ticTacToeBoardCanvas;
+    GameObject accountLoginRegisterCanvas;
+    GameObject waitingRoomCanvas;
+    GameObject ticTacToeBoardCanvas;
 
     //Waiting Room GameObjects
-    static GameObject roomNameInputField;
-    static GameObject waitingRoomBackButton;
-    static GameObject createRoomButton;
-    static GameObject memeText;
-    static GameObject memeImage;
-    static GameObject waitingForPlayer2Text;
+    GameObject roomNameInputField;
+    GameObject waitingRoomBackButton;
+    GameObject createRoomButton;
+    GameObject memeText;
+    GameObject memeImage;
+    GameObject waitingForPlayer2Text;
 
 
     //TicTacToe GameObjects
 
-    static GameObject listOfPlaySpaces;
-    static Button[] ticTacToePlaySpaces;
+    public GameObject listOfPlaySpaces;
+    GameObject[,] ticTacToePlaySpaces = new GameObject[3, 3];
+    GameObject gameplayBackButton;
+    GameObject chatInputField;
+    GameObject sendChatButton;
 
-    public static AccountLoginStateSignifier currentLoginState;
-    public static WaitingRoomLogicState currentWaitingRoomState;
-    public static TicTacToeGameState currentTicTacToeGameState;
-    public static GameStateManager currentGameState;
+    //game state handlers
+    public AccountLoginStateSignifier currentLoginState;
+    public WaitingRoomLogicState currentWaitingRoomState;
+    public TicTacToeGameState currentTicTacToeGameState;
+    public GameStateManager currentGameState;
 
     // Start is called before the first frame update
     void Start()
@@ -135,9 +139,62 @@ public class TicTacToeGameLogic : GameLogic
             {
                 listOfPlaySpaces = (GameObject)obj;
             }
-
+            else if (obj.name == "GameplayBackButton")
+            {
+                gameplayBackButton = (GameObject)obj;
+            }
+            else if (obj.name == "ChatInput")
+            {
+                chatInputField = (GameObject)obj;
+            }
+            else if (obj.name == "SendChatButton")
+            {
+                sendChatButton = (GameObject)obj;
+            }
 
             #endregion
+
+            #region setting button play spaces
+
+            if (obj.name == "TopLeftBox")
+            {
+                ticTacToePlaySpaces[0, 0] = (GameObject)obj;
+            }
+            else if (obj.name == "TopMiddleBox")
+            {
+                ticTacToePlaySpaces[0, 1] = (GameObject)obj;
+            }
+            else if (obj.name == "TopRightBox")
+            {
+                ticTacToePlaySpaces[0, 2] = (GameObject)obj;
+            }
+            else if (obj.name == "MiddleLeftBox")
+            {
+                ticTacToePlaySpaces[1, 0] = (GameObject)obj;
+            }
+            else if (obj.name == "MiddleBox")
+            {
+                ticTacToePlaySpaces[1, 1] = (GameObject)obj;
+            }
+            else if (obj.name == "MiddleRightBox")
+            {
+                ticTacToePlaySpaces[1, 2] = (GameObject)obj;
+            }
+            else if (obj.name == "BottomLeftBox")
+            {
+                ticTacToePlaySpaces[2, 0] = (GameObject)obj;
+            }
+            else if (obj.name == "BottomMiddleBox")
+            {
+                ticTacToePlaySpaces[2, 1] = (GameObject)obj;
+            }
+            else if (obj.name == "BottomRightBox")
+            {
+                ticTacToePlaySpaces[2, 2] = (GameObject)obj;
+            }
+
+            #endregion
+            
         }
 
         //login canvas buttons
@@ -149,15 +206,14 @@ public class TicTacToeGameLogic : GameLogic
         createRoomButton.GetComponent<Button>().onClick.AddListener(CreateRoomButtonPressed);
         waitingRoomBackButton.GetComponent<Button>().onClick.AddListener(WaitingRoomBackButtonPressed);
 
+        //gameplay board buttons
+        //gameplayBackButton.GetComponent<Button>().onClick.AddListener();
+        sendChatButton.GetComponent<Button>().onClick.AddListener(SendChatMessageToServer);
+
         RefreshUI();
         SetActiveGameCanvas();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
 
     public void RefreshUI()
     {
@@ -285,26 +341,26 @@ public class TicTacToeGameLogic : GameLogic
 
     }
 
-    public static string GetUsernameFromInput()
+    public string GetUsernameFromInput()
     {
         string usernameInput = usernameLoginInputField.GetComponentsInChildren<TextMeshProUGUI>()[1].text;
 
         return usernameInput;
     }
-    public static string GetPasswordFromInput()
+    public string GetPasswordFromInput()
     {
         string passwordInput = passwordLoginInputField.GetComponentsInChildren<TextMeshProUGUI>()[1].text;
 
         return passwordInput;
     }
 
-    public static string ChangeSubtitleText(string text)
+    public string ChangeSubtitleText(string text)
     {
         return text;
     }
 
     #endregion
-    static private string conjoinStrings(params string[] strings)
+    private string conjoinStrings(params string[] strings)
     {
         string conjoinedString = "";
 
@@ -321,7 +377,7 @@ public class TicTacToeGameLogic : GameLogic
     }
 
     #region Waiting Room Logics
-    public static string GetRoomNameFromInput()
+    public string GetRoomNameFromInput()
     {
         string roomNameInput = roomNameInputField.GetComponentsInChildren<TextMeshProUGUI>()[1].text;
 
@@ -349,6 +405,37 @@ public class TicTacToeGameLogic : GameLogic
     #endregion
 
     #region TicTacToeGame Logics
+
+    public void SendChatMessageToServer()
+    {
+        string chatMessageToSend = chatInputField.GetComponentsInChildren<TextMeshProUGUI>()[1].text;
+
+        string chatMessageWithSignifier = conjoinStrings(ClientToServerSignifiers.SendMessage.ToString(), chatMessageToSend);
+
+        NetworkClientProcessing.SendMessageToServer(chatMessageWithSignifier, TransportPipeline.ReliableAndInOrder);
+    }
+
+    public void EnablePlayButtons()
+    {
+        for (int x = 0; x < 3; x++)
+        {
+            for (int y = 0; y < 3; y++)
+            {
+                ticTacToePlaySpaces[x, y].GetComponent<Button>().enabled = true;
+            }
+        }
+    }
+
+    public void DisablePlayButtons()
+    {
+        for (int x = 0; x < 3; x++)
+        {
+            for (int y = 0; y < 3; y++)
+            {
+                ticTacToePlaySpaces[x, y].GetComponent<Button>().enabled = false;
+            }
+        }
+    }
 
     #endregion
 
@@ -425,6 +512,7 @@ public class TicTacToeGameLogic : GameLogic
                 currentGameState = GameStateManager.TicTacToeBoardLogic;
                 currentTicTacToeGameState = TicTacToeGameState.WaitingForTurnState;
                 SetActiveGameCanvas();
+                DisablePlayButtons();
                 RefreshUI();
             }
         }
@@ -433,6 +521,31 @@ public class TicTacToeGameLogic : GameLogic
 
         #region Tic Tac Toe Messages From Server
 
+
+        else if (currentGameState == GameStateManager.TicTacToeBoardLogic)
+        {
+            if (signifier == ServerToClientSignifiers.CurrentPlayerTurn)
+            {
+                EnablePlayButtons();
+            }
+            else if (signifier == ServerToClientSignifiers.NotCurrentTurn)
+            {
+                DisablePlayButtons();
+            }
+            //updating client side boards according to servers current state
+            else if (signifier == ServerToClientSignifiers.UpdateClientBoards)
+            {
+
+            }
+            else if (signifier == ServerToClientSignifiers.ResetGame)
+            {
+
+            }
+            else if (signifier == ServerToClientSignifiers.SendMessageToOtherPlayer)
+            {
+
+            }
+        }
 
 
         #endregion

@@ -76,8 +76,7 @@ static public class ClientToServerSignifiers
     public const int CheckIfRoomAvailable = 103;
     public const int SendMove = 104;
     public const int ExitGame = 105;
-    public const int ResetGame = 106;
-
+    public const int SendMessage = 106;
 }
 
 static public class ServerToClientSignifiers
@@ -87,6 +86,11 @@ static public class ServerToClientSignifiers
     public const int AccountErrorMessage = 203;
     public const int waitingForNewPlayer = 204;
     public const int StartGame = 205;
+    public const int CurrentPlayerTurn = 206;
+    public const int NotCurrentTurn = 207;
+    public const int UpdateClientBoards = 208;
+    public const int ResetGame = 209;
+    public const int SendMessageToOtherPlayer = 210;
 }
 
 #endregion

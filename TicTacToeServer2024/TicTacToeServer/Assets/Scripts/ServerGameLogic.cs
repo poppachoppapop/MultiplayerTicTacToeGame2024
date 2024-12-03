@@ -17,13 +17,6 @@ public class ServerGameLogic : GameLogic
 
     Dictionary<string, GameRoom> roomDictionary = new Dictionary<string, GameRoom>();
 
-    //2d array to represent tictactoe board
-    short[,] gameplayBoard = new short[3, 3];
-
-    //tic tac toe moves
-    const short emptyBox = 0;
-    const short player1Move = 1;
-    const short player2Move = 2;
 
     string accountDirectoryPath;
 
@@ -93,6 +86,8 @@ public class ServerGameLogic : GameLogic
 
         #endregion
 
+        #region waiting room logic
+
         else if (signifier == ClientToServerSignifiers.CheckIfRoomAvailable)
         {
             string clientRoomName = clientInstructions[1];
@@ -106,6 +101,29 @@ public class ServerGameLogic : GameLogic
                 SendPlayerToExistingGameRoom(clientID, clientRoomName);
             }
         }
+
+        #endregion
+
+        #region game board logic
+
+        else if (signifier == ClientToServerSignifiers.SendMove)
+        {
+            string acceptedMove = clientInstructions[1];
+        }
+
+        else if (signifier == ClientToServerSignifiers.ExitGame)
+        {
+
+        }
+
+        else if (signifier == ClientToServerSignifiers.SendMessage)
+        {
+            string receivedMessage = clientInstructions[1];
+
+            Debug.Log(receivedMessage);
+        }
+
+        #endregion
     }
 
     #region Login Stuff
@@ -197,18 +215,10 @@ public class ServerGameLogic : GameLogic
 
     public void CreateGameRoomForClients(int clientID, string roomName)
     {
-
-        GameRoom newlyCreatedRoom = new GameRoom(roomName, playersInServer[clientID], gameplayBoard);
+        GameRoom newlyCreatedRoom = new GameRoom(roomName, playersInServer[clientID]);
 
         string newRoomCreationMessage = conjoinStrings(ServerToClientSignifiers.waitingForNewPlayer.ToString(), "room created, waiting for new player...");
 
-        for (int x = 0; x < 3; x++)
-        {
-            for (int y = 0; y < 3; y++)
-            {
-                newlyCreatedRoom.gameplayBoard[x, y] = emptyBox;
-            }
-        }
 
         roomDictionary.Add(roomName, newlyCreatedRoom);
 
@@ -216,7 +226,7 @@ public class ServerGameLogic : GameLogic
 
         Debug.Log("Created new room!");
 
-        NetworkServerProcessing.SendMessageToClient(newRoomCreationMessage,clientID, TransportPipeline.ReliableAndInOrder);
+        NetworkServerProcessing.SendMessageToClient(newRoomCreationMessage, clientID, TransportPipeline.ReliableAndInOrder);
     }
 
     public void SendPlayerToExistingGameRoom(int clientID, string roomName)
@@ -232,6 +242,8 @@ public class ServerGameLogic : GameLogic
         {
             NetworkServerProcessing.SendMessageToClient(startGameMessage, roomDictionary[roomName].player1.clientId, TransportPipeline.ReliableAndInOrder);
             NetworkServerProcessing.SendMessageToClient(startGameMessage, roomDictionary[roomName].player2.clientId, TransportPipeline.ReliableAndInOrder);
+
+            roomDictionary[roomName].OnGameStart();
         }
     }
 
@@ -247,5 +259,14 @@ public class ServerGameLogic : GameLogic
 
     #endregion
 
+    #region Game Logic Stuff
 
+    public void SendMessageToOtherPlayer(string message, int clientID, string roomName)
+    {
+        
+        
+        NetworkServerProcessing.SendMessageToClient(message, clientID, TransportPipeline.ReliableAndInOrder);
+    }
+
+    #endregion
 }
