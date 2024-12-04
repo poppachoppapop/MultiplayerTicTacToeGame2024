@@ -103,6 +103,11 @@ public class ServerGameLogic : GameLogic
             }
         }
 
+        else if (signifier == ClientToServerSignifiers.ReturnToLoginScreen)
+        {
+            DisconnectPlayerFromListOfPlayers(clientID);
+        }
+
         #endregion
 
         #region game board logic
@@ -189,6 +194,11 @@ public class ServerGameLogic : GameLogic
         {
             writer.WriteLine(accountUsernameAndPassword);
         }
+    }
+
+    public void DisconnectPlayerFromListOfPlayers(int clientID)
+    {
+        playersInServer.Remove(clientID);
     }
 
     public bool AccountAlreadyExists(string accountUsername)

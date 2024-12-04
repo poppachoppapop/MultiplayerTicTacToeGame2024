@@ -66,6 +66,7 @@ static public class ClientToServerSignifiers
     public const int ExitGame = 105;
     public const int ResetGame = 106;
     public const int SendMessage = 107;
+    public const int ReturnToLoginScreen = 108;
 }
 
 static public class ServerToClientSignifiers

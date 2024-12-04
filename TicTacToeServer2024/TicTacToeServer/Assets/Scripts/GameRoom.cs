@@ -286,9 +286,12 @@ public class GameRoom
 /*
 PRIORITY
 -̶ s̶e̶n̶d̶ w̶i̶n̶/̶l̶o̶s̶e̶ c̶o̶n̶d̶i̶t̶i̶o̶n̶ t̶o̶ c̶l̶i̶e̶n̶t̶
-- stop game
-- reset game on server/client
+-̶ s̶t̶o̶p̶ g̶a̶m̶e̶
+-̶ r̶e̶s̶e̶t̶ g̶a̶m̶e̶ o̶n̶ s̶e̶r̶v̶e̶r̶/̶c̶l̶i̶e̶n̶t̶
 - leaving game on server side
+    1. person who leaves need get removed from game room
+    2. person who didnt leave needs to get sent to waiting room
+    3. if both people leave, delete room
 - delete empty rooms
 
 BACKBURNER

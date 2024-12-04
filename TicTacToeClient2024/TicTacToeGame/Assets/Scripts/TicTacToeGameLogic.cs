@@ -15,6 +15,8 @@ public class TicTacToeGameLogic : GameLogic
     short player1 = 1;
     short player2 = 2;
 
+    bool resetIsPressed = false;
+
 
     //Account Login GameObjects
     GameObject usernameLoginInputField;
@@ -333,6 +335,7 @@ public class TicTacToeGameLogic : GameLogic
                 DisablePlayButtons();
 
                 resetGameButton.SetActive(true);
+                resetGameButton.GetComponent<Button>().interactable = true;
                 waitingForTurnText.SetActive(false);
             }
             else if (currentTicTacToeGameState == TicTacToeGameState.LoserState)
@@ -342,6 +345,7 @@ public class TicTacToeGameLogic : GameLogic
                 DisablePlayButtons();
 
                 resetGameButton.SetActive(true);
+                resetGameButton.GetComponent<Button>().interactable = true;
                 waitingForTurnText.SetActive(false);
             }
         }
@@ -452,6 +456,8 @@ public class TicTacToeGameLogic : GameLogic
         currentGameState = GameStateManager.AccountLoginLogic;
         currentLoginState = AccountLoginStateSignifier.LoginState;
         SetActiveGameCanvas();
+        RefreshUI();
+        NetworkClientProcessing.SendMessageToServer(ClientToServerSignifiers.ReturnToLoginScreen.ToString(), TransportPipeline.ReliableAndInOrder);
     }
 
     #endregion
@@ -536,6 +542,7 @@ public class TicTacToeGameLogic : GameLogic
     public void ResetGameButtonPressed()
     {
         NetworkClientProcessing.SendMessageToServer(ClientToServerSignifiers.ResetGame.ToString(), TransportPipeline.ReliableAndInOrder);
+        resetGameButton.GetComponent<Button>().interactable = false;
     }
 
     #endregion
