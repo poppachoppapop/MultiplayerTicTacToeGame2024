@@ -6,6 +6,8 @@ public class GameRoom
 {
     public string roomName;
 
+    public int resetGameCounter;
+
     public Player player1;
     public Player player2;
 
@@ -44,14 +46,12 @@ public class GameRoom
         {
             this.player2 = null;
         }
-
-        //CheckIfGameRoomEmpty(this.roomName);
     }
 
     public void OnGameStart()
     {
-        SetPlayerTurn(player1);
         ResetGameBoard();
+        SetPlayerTurn(player1);
     }
 
     public void PlayerSentMove(short column, short row)
@@ -273,22 +273,19 @@ public class GameRoom
 
         return true;
     }
-
-    // public void DeleteGameRoom()
-    // {
-    //     this.roomName = null;
-    //     this.player1 = null;
-    //     this.player2 = null;
-    //     this.gameplayBoard = null;
-    // }
-
-
-
+    public bool CheckIfPlayerLeftGame()
+    {
+        if (this.player1 != null || this.player2 == null)
+        {
+            return false;
+        }
+        return true;
+    }
 }
 
 /*
 PRIORITY
-- send win/lose condition to client
+-̶ s̶e̶n̶d̶ w̶i̶n̶/̶l̶o̶s̶e̶ c̶o̶n̶d̶i̶t̶i̶o̶n̶ t̶o̶ c̶l̶i̶e̶n̶t̶
 - stop game
 - reset game on server/client
 - leaving game on server side

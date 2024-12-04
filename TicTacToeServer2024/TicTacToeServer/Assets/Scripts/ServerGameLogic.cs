@@ -17,7 +17,7 @@ public class ServerGameLogic : GameLogic
 
     Dictionary<string, GameRoom> roomDictionary = new Dictionary<string, GameRoom>();
 
-    int resetGameCounter = 0;
+    //int resetGameCounter = 0;
 
     string accountDirectoryPath;
 
@@ -123,6 +123,12 @@ public class ServerGameLogic : GameLogic
             string roomToDelete = playersInServer[clientID].currentGameRoom.ToString();
             playersInServer[clientID].currentGameRoom.RemovePlayerFromRoom(clientID);
             Debug.Log("player has disconnected, waiting.");
+
+            if(playersInServer[clientID].currentGameRoom.CheckIfPlayerLeftGame())
+            {
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.waitingForNewPlayer.ToString(), int.Parse(roomToDelete), TransportPipeline.ReliableAndInOrder);
+            }
+
             if (playersInServer[clientID].currentGameRoom.CheckIfGameRoomEmpty())
             {
                 roomDictionary.Remove(roomToDelete);
@@ -131,12 +137,16 @@ public class ServerGameLogic : GameLogic
 
         else if (signifier == ClientToServerSignifiers.ResetGame)
         {
-            resetGameCounter++;
+            playersInServer[clientID].currentGameRoom.resetGameCounter++;
 
-            if (resetGameCounter == 2)
+            if (playersInServer[clientID].currentGameRoom.resetGameCounter == 2)
             {
                 NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.ResetGame.ToString(), playersInServer[clientID].currentGameRoom.player1.clientId, TransportPipeline.ReliableAndInOrder);
-                //NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.ResetGame.ToString(), playersInServer[clientID].currentGameRoom.player2.clientId, TransportPipeline.ReliableAndInOrder);
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.ResetGame.ToString(), playersInServer[clientID].currentGameRoom.player2.clientId, TransportPipeline.ReliableAndInOrder);
+
+                playersInServer[clientID].currentGameRoom.OnGameStart();
+
+                playersInServer[clientID].currentGameRoom.resetGameCounter = 0;
             }
         }
 

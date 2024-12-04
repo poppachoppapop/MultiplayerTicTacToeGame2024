@@ -621,6 +621,10 @@ public class TicTacToeGameLogic : GameLogic
             else if (signifier == ServerToClientSignifiers.ResetGame)
             {
                 UpdateGameBoard(emptyBox, emptyBox, emptyBox);
+                RefreshUI();
+                winLoseTitle.SetActive(false);
+                resetGameButton.SetActive(false);
+                waitingForTurnText.SetActive(true);
             }
             else if (signifier == ServerToClientSignifiers.SendMessageToOtherPlayer)
             {
@@ -641,6 +645,13 @@ public class TicTacToeGameLogic : GameLogic
                 currentTicTacToeGameState = TicTacToeGameState.TieGameState;
                 RefreshUI();
             }
+
+            // if (signifier == ServerToClientSignifiers.waitingForNewPlayer)
+            // {
+            //     currentWaitingRoomState = WaitingRoomLogicState.WaitingForNewPlayerState;
+            //     SetActiveGameCanvas();
+            //     RefreshUI();
+            // }
         }
 
 
