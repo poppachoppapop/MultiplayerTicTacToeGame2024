@@ -268,8 +268,6 @@ public class ServerGameLogic : GameLogic
 
     public void SendMessageToOtherPlayer(string message, int clientID, string roomName)
     {
-        
-        
         NetworkServerProcessing.SendMessageToClient(message, clientID, TransportPipeline.ReliableAndInOrder);
     }
 

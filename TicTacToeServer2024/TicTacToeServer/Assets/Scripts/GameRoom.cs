@@ -16,6 +16,9 @@ public class GameRoom
     const short player1Move = 1;
     const short player2Move = 2;
 
+
+    bool winConditionMet;
+
     Player currentTurn;
 
     public GameRoom(string roomName, Player player1)
@@ -37,25 +40,25 @@ public class GameRoom
         ResetGameBoard();
     }
 
-    public void PlayerSentMove(short x, short y)
+    public void PlayerSentMove(short column, short row)
     {
 
         string updateAllClientBoards = null;
 
         if (currentTurn == player1)
         {
-            SetMoveOnBoard(x, y, player1Move);
+            SetMoveOnBoard(column, row, player1Move);
             updateAllClientBoards = ServerGameLogic.conjoinStrings(ServerToClientSignifiers.UpdateClientBoards.ToString(),
-            x.ToString(),
-            y.ToString(),
+            column.ToString(),
+            row.ToString(),
             player1Move.ToString());
         }
         else
         {
-            SetMoveOnBoard(x, y, player2Move);
+            SetMoveOnBoard(column, row, player2Move);
             updateAllClientBoards = ServerGameLogic.conjoinStrings(ServerToClientSignifiers.UpdateClientBoards.ToString(),
-            x.ToString(),
-            y.ToString(),
+            column.ToString(),
+            row.ToString(),
             player2Move.ToString());
         }
 
@@ -73,28 +76,47 @@ public class GameRoom
         }
     }
 
-    public void CheckTicTacToeWinCondition()
+    public void CheckTicTacToeWinCondition(short column, short row, short playerMove)
     {
-
+        if (CheckVerticalAxis(column, playerMove))
+        {
+            //player weens!
+        }
+        else if (CheckHorizontalAxis(row, playerMove))
+        {
+            //player weens!
+        }
+        else if (CheckDiagonalDownRight(playerMove))
+        {
+            //player weens!
+        }
+        else if (CheckDiagonalDownLeft(playerMove))
+        {
+            //player weens!
+        }
+        else if (CheckIfTieHappens())
+        {
+            //no players ween!
+        }
+        //no ween yet :3
     }
 
     public void ResetGameBoard()
     {
-        for (int x = 0; x < 3; x++)
+        for (int column = 0; column < 3; column++)
         {
-            for (int y = 0; y < 3; y++)
+            for (int row = 0; row < 3; row++)
             {
-                this.gameplayBoard[x, y] = emptyBox;
+                this.gameplayBoard[column, row] = emptyBox;
             }
         }
     }
 
-    public void SetMoveOnBoard(short x, short y, short playerMove)
+    public void SetMoveOnBoard(short column, short row, short playerMove)
     {
-        gameplayBoard[x, y] = playerMove;
+        gameplayBoard[column, row] = playerMove;
+        CheckTicTacToeWinCondition(column, row, playerMove);
     }
-
-
 
     public void SetPlayerTurn(Player player)
     {
@@ -107,5 +129,71 @@ public class GameRoom
         NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.CurrentPlayerTurn.ToString(), currentTurn.clientId, TransportPipeline.ReliableAndInOrder);
     }
 
+    public void GameOver()
+    {
+
+    }
+
+    public bool CheckVerticalAxis(short column, short playerMove)
+    {
+        for (int row = 0; row < 3; row++)
+        {
+            if (gameplayBoard[column, row] != playerMove)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public bool CheckHorizontalAxis(short row, short playerMove)
+    {
+        for (int column = 0; column < 3; column++)
+        {
+            if (gameplayBoard[column, row] != playerMove)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public bool CheckDiagonalDownRight(short playerMove)
+    {
+        for (int i = 0; i < 3; i++)
+        {
+            if (gameplayBoard[i, i] != playerMove)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public bool CheckDiagonalDownLeft(short playerMove)
+    {
+        for (int row = 0; row < 3; row++)
+        {
+            if (gameplayBoard[2 - row, row] != playerMove)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public bool CheckIfTieHappens()
+    {
+        foreach (short move in gameplayBoard)
+        {
+            if (move == emptyBox)
+            {
+                return false;
+            }
+
+        }
+        return true;
+    }
 
 }
