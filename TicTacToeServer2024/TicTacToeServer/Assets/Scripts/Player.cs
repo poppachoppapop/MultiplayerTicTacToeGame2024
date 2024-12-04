@@ -18,4 +18,9 @@ public class Player
     {
         this.currentGameRoom = currentGameRoom;
     }
+
+    public void RemovePlayerFromCurrentGameRoom(GameRoom currentGameRoom)
+    {
+        this.currentGameRoom = null;
+    }
 }

@@ -17,6 +17,7 @@ public class ServerGameLogic : GameLogic
 
     Dictionary<string, GameRoom> roomDictionary = new Dictionary<string, GameRoom>();
 
+    int resetGameCounter = 0;
 
     string accountDirectoryPath;
 
@@ -118,7 +119,25 @@ public class ServerGameLogic : GameLogic
 
         else if (signifier == ClientToServerSignifiers.ExitGame)
         {
+            //if()
+            string roomToDelete = playersInServer[clientID].currentGameRoom.ToString();
+            playersInServer[clientID].currentGameRoom.RemovePlayerFromRoom(clientID);
+            Debug.Log("player has disconnected, waiting.");
+            if (playersInServer[clientID].currentGameRoom.CheckIfGameRoomEmpty())
+            {
+                roomDictionary.Remove(roomToDelete);
+            }
+        }
 
+        else if (signifier == ClientToServerSignifiers.ResetGame)
+        {
+            resetGameCounter++;
+
+            if (resetGameCounter == 2)
+            {
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.ResetGame.ToString(), playersInServer[clientID].currentGameRoom.player1.clientId, TransportPipeline.ReliableAndInOrder);
+                //NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.ResetGame.ToString(), playersInServer[clientID].currentGameRoom.player2.clientId, TransportPipeline.ReliableAndInOrder);
+            }
         }
 
         else if (signifier == ClientToServerSignifiers.SendMessage)
@@ -261,6 +280,7 @@ public class ServerGameLogic : GameLogic
 
         return false;
     }
+
 
     #endregion
 

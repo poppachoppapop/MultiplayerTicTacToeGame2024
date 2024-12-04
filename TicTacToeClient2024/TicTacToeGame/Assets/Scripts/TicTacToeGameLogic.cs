@@ -11,7 +11,7 @@ public class TicTacToeGameLogic : GameLogic
 {
     const char sepchar = ',';
 
-    short myTurn = 0;
+    short emptyBox = 0;
     short player1 = 1;
     short player2 = 2;
 
@@ -45,6 +45,9 @@ public class TicTacToeGameLogic : GameLogic
     GameObject gameplayBackButton;
     GameObject chatInputField;
     GameObject sendChatButton;
+    GameObject waitingForTurnText;
+    GameObject winLoseTitle;
+    GameObject resetGameButton;
 
     //game state handlers
     public AccountLoginStateSignifier currentLoginState;
@@ -155,6 +158,18 @@ public class TicTacToeGameLogic : GameLogic
             {
                 sendChatButton = (GameObject)obj;
             }
+            else if (obj.name == "WaitingForTurnText")
+            {
+                waitingForTurnText = (GameObject)obj;
+            }
+            else if (obj.name == "WinLoseTitle")
+            {
+                winLoseTitle = (GameObject)obj;
+            }
+            else if (obj.name == "ResetGameButton")
+            {
+                resetGameButton = (GameObject)obj;
+            }
 
             #endregion
 
@@ -220,8 +235,10 @@ public class TicTacToeGameLogic : GameLogic
         waitingRoomBackButton.GetComponent<Button>().onClick.AddListener(WaitingRoomBackButtonPressed);
 
         //gameplay board buttons
-        //gameplayBackButton.GetComponent<Button>().onClick.AddListener();
+        gameplayBackButton.GetComponent<Button>().onClick.AddListener(GameplayBackButtonPressed);
         sendChatButton.GetComponent<Button>().onClick.AddListener(SendChatMessageToServer);
+        resetGameButton.GetComponent<Button>().onClick.AddListener(ResetGameButtonPressed);
+
 
         RefreshUI();
         SetActiveGameCanvas();
@@ -252,7 +269,7 @@ public class TicTacToeGameLogic : GameLogic
                 passwordLoginInputField.SetActive(true);
                 loginButton.SetActive(true);
 
-                subtitleText.GetComponent<TextMeshProUGUI>().text = ChangeSubtitleText("Login to start playing!");
+                subtitleText.GetComponent<TextMeshProUGUI>().text = ChangeText("Login to start playing!");
             }
             else if (currentLoginState == AccountLoginStateSignifier.RegisterState)
             {
@@ -260,7 +277,7 @@ public class TicTacToeGameLogic : GameLogic
                 passwordLoginInputField.SetActive(true);
                 registerButton.SetActive(true);
 
-                subtitleText.GetComponent<TextMeshProUGUI>().text = ChangeSubtitleText("Create an account to play!");
+                subtitleText.GetComponent<TextMeshProUGUI>().text = ChangeText("Create an account to play!");
             }
         }
         else if (currentGameState == GameStateManager.WaitingRoomLogic)
@@ -276,6 +293,16 @@ public class TicTacToeGameLogic : GameLogic
                 memeImage.SetActive(false);
                 memeText.SetActive(false);
             }
+            else if (currentWaitingRoomState == WaitingRoomLogicState.BasicWaitingRoomState)
+            {
+                roomNameInputField.SetActive(true);
+                waitingRoomBackButton.SetActive(true);
+                createRoomButton.SetActive(true);
+                memeImage.SetActive(true);
+                memeText.SetActive(true);
+
+                waitingForPlayer2Text.SetActive(false);
+            }
         }
         else if (currentGameState == GameStateManager.TicTacToeBoardLogic)
         {
@@ -283,13 +310,39 @@ public class TicTacToeGameLogic : GameLogic
 
             if (currentTicTacToeGameState == TicTacToeGameState.WaitingForTurnState)
             {
+                winLoseTitle.SetActive(false);
                 listOfPlaySpaces.SetActive(true);
                 waitingForPlayer2Text.SetActive(false);
+
+                waitingForTurnText.SetActive(true);
+                resetGameButton.SetActive(false);
             }
-            else if (currentTicTacToeGameState == TicTacToeGameState.SelectingSquareTurn)
+            else if (currentTicTacToeGameState == TicTacToeGameState.CurrentPlayerTurn)
             {
+                winLoseTitle.SetActive(false);
                 listOfPlaySpaces.SetActive(true);
                 waitingForPlayer2Text.SetActive(false);
+
+                waitingForTurnText.SetActive(false);
+                resetGameButton.SetActive(false);
+            }
+            else if (currentTicTacToeGameState == TicTacToeGameState.WinnerState)
+            {
+                winLoseTitle.SetActive(true);
+                winLoseTitle.GetComponent<TextMeshProUGUI>().text = ChangeText("You win!");
+                DisablePlayButtons();
+
+                resetGameButton.SetActive(true);
+                waitingForTurnText.SetActive(false);
+            }
+            else if (currentTicTacToeGameState == TicTacToeGameState.LoserState)
+            {
+                winLoseTitle.SetActive(true);
+                winLoseTitle.GetComponent<TextMeshProUGUI>().text = ChangeText("You Lose!");
+                DisablePlayButtons();
+
+                resetGameButton.SetActive(true);
+                waitingForTurnText.SetActive(false);
             }
         }
 
@@ -367,27 +420,12 @@ public class TicTacToeGameLogic : GameLogic
         return passwordInput;
     }
 
-    public string ChangeSubtitleText(string text)
+    public string ChangeText(string text)
     {
         return text;
     }
 
     #endregion
-    private string conjoinStrings(params string[] strings)
-    {
-        string conjoinedString = "";
-
-        foreach (string s in strings)
-        {
-            if (conjoinedString != "")
-            {
-                conjoinedString += sepchar;
-            }
-            conjoinedString += s;
-        }
-
-        return conjoinedString;
-    }
 
     #region Waiting Room Logics
     public string GetRoomNameFromInput()
@@ -412,6 +450,7 @@ public class TicTacToeGameLogic : GameLogic
     public void WaitingRoomBackButtonPressed()
     {
         currentGameState = GameStateManager.AccountLoginLogic;
+        currentLoginState = AccountLoginStateSignifier.LoginState;
         SetActiveGameCanvas();
     }
 
@@ -436,7 +475,7 @@ public class TicTacToeGameLogic : GameLogic
             {
                 string boxTicks = ticTacToePlaySpaces[x, y].GetComponentInChildren<TextMeshProUGUI>().text;
 
-                if(boxTicks != "X" && boxTicks != "O")
+                if (boxTicks != "X" && boxTicks != "O")
                 {
                     ticTacToePlaySpaces[x, y].GetComponent<Button>().enabled = true;
                 }
@@ -472,34 +511,35 @@ public class TicTacToeGameLogic : GameLogic
         {
             ticTacToePlaySpaces[x, y].GetComponentInChildren<TextMeshProUGUI>().text = "O";
         }
+        else if (playerMove.ToString() == emptyBox.ToString())
+        {
+            for (int column = 0; column < 3; column++)
+            {
+                for (int row = 0; row < 3; row++)
+                {
+                    ticTacToePlaySpaces[column, row].GetComponentInChildren<TextMeshProUGUI>().text = null;
+                }
+            }
+        }
+    }
+
+    public void GameplayBackButtonPressed()
+    {
+        currentGameState = GameStateManager.WaitingRoomLogic;
+        currentWaitingRoomState = WaitingRoomLogicState.BasicWaitingRoomState;
+        SetActiveGameCanvas();
+        RefreshUI();
+
+        NetworkClientProcessing.SendMessageToServer(ClientToServerSignifiers.ExitGame.ToString(), TransportPipeline.ReliableAndInOrder);
+    }
+
+    public void ResetGameButtonPressed()
+    {
+        NetworkClientProcessing.SendMessageToServer(ClientToServerSignifiers.ResetGame.ToString(), TransportPipeline.ReliableAndInOrder);
     }
 
     #endregion
 
-    public void SetActiveGameCanvas()
-    {
-        if (currentGameState == GameStateManager.AccountLoginLogic)
-        {
-            //set login canvas to be active
-            accountLoginRegisterCanvas.SetActive(true);
-            waitingRoomCanvas.SetActive(false);
-            ticTacToeBoardCanvas.SetActive(false);
-        }
-        else if (currentGameState == GameStateManager.WaitingRoomLogic)
-        {
-            //set waiting room canvas to be active
-            waitingRoomCanvas.gameObject.SetActive(true);
-            accountLoginRegisterCanvas.SetActive(false);
-            ticTacToeBoardCanvas.SetActive(false);
-        }
-        else if (currentGameState == GameStateManager.TicTacToeBoardLogic)
-        {
-            //set tictactoe canvas to be active
-            ticTacToeBoardCanvas.SetActive(true);
-            waitingRoomCanvas.SetActive(false);
-            accountLoginRegisterCanvas.SetActive(false);
-        }
-    }
 
     public override void ProcessMessageFromServer(string[] clientInstructions, TransportPipeline pipeline)
     {
@@ -564,10 +604,14 @@ public class TicTacToeGameLogic : GameLogic
             if (signifier == ServerToClientSignifiers.CurrentPlayerTurn)
             {
                 EnablePlayButtons();
+                currentTicTacToeGameState = TicTacToeGameState.CurrentPlayerTurn;
+                RefreshUI();
             }
             else if (signifier == ServerToClientSignifiers.NotCurrentTurn)
             {
                 DisablePlayButtons();
+                currentTicTacToeGameState = TicTacToeGameState.WaitingForTurnState;
+                RefreshUI();
             }
             //updating client side boards according to servers current state
             else if (signifier == ServerToClientSignifiers.UpdateClientBoards)
@@ -576,16 +620,73 @@ public class TicTacToeGameLogic : GameLogic
             }
             else if (signifier == ServerToClientSignifiers.ResetGame)
             {
-
+                UpdateGameBoard(emptyBox, emptyBox, emptyBox);
             }
             else if (signifier == ServerToClientSignifiers.SendMessageToOtherPlayer)
             {
 
             }
+            else if (signifier == ServerToClientSignifiers.WinnerSignifier)
+            {
+                currentTicTacToeGameState = TicTacToeGameState.WinnerState;
+                RefreshUI();
+            }
+            else if (signifier == ServerToClientSignifiers.LoserSignifier)
+            {
+                currentTicTacToeGameState = TicTacToeGameState.LoserState;
+                RefreshUI();
+            }
+            else if (signifier == ServerToClientSignifiers.TieGameSignifier)
+            {
+                currentTicTacToeGameState = TicTacToeGameState.TieGameState;
+                RefreshUI();
+            }
         }
 
 
         #endregion
+    }
+
+    private string conjoinStrings(params string[] strings)
+    {
+        string conjoinedString = "";
+
+        foreach (string s in strings)
+        {
+            if (conjoinedString != "")
+            {
+                conjoinedString += sepchar;
+            }
+            conjoinedString += s;
+        }
+
+        return conjoinedString;
+    }
+
+
+    public void SetActiveGameCanvas()
+    {
+        if (currentGameState == GameStateManager.AccountLoginLogic)
+        {
+            //set login canvas to be active
+            accountLoginRegisterCanvas.SetActive(true);
+            waitingRoomCanvas.SetActive(false);
+            ticTacToeBoardCanvas.SetActive(false);
+        }
+        else if (currentGameState == GameStateManager.WaitingRoomLogic)
+        {
+            //set waiting room canvas to be active
+            waitingRoomCanvas.gameObject.SetActive(true);
+            accountLoginRegisterCanvas.SetActive(false);
+            ticTacToeBoardCanvas.SetActive(false);
+        }
+        else if (currentGameState == GameStateManager.TicTacToeBoardLogic)
+        {
+            //set tictactoe canvas to be active
+            ticTacToeBoardCanvas.SetActive(true);
+            waitingRoomCanvas.SetActive(false);
+            accountLoginRegisterCanvas.SetActive(false);
+        }
     }
 }
 

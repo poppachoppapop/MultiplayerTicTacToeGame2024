@@ -34,6 +34,20 @@ public class GameRoom
         player2.SetCurrentGameRoom(this);
     }
 
+    public void RemovePlayerFromRoom(int clientID)
+    {
+        if (clientID == this.player1.clientId)
+        {
+            this.player1 = null;
+        }
+        else if (clientID == this.player2.clientId)
+        {
+            this.player2 = null;
+        }
+
+        //CheckIfGameRoomEmpty(this.roomName);
+    }
+
     public void OnGameStart()
     {
         SetPlayerTurn(player1);
@@ -42,6 +56,7 @@ public class GameRoom
 
     public void PlayerSentMove(short column, short row)
     {
+        bool stopGame = false;
 
         string updateAllClientBoards = null;
 
@@ -52,6 +67,7 @@ public class GameRoom
             column.ToString(),
             row.ToString(),
             player1Move.ToString());
+            stopGame = CheckTicTacToeWinCondition(column, row, player1Move);
         }
         else
         {
@@ -60,45 +76,93 @@ public class GameRoom
             column.ToString(),
             row.ToString(),
             player2Move.ToString());
+            stopGame = CheckTicTacToeWinCondition(column, row, player2Move);
         }
-
 
         NetworkServerProcessing.SendMessageToClient(updateAllClientBoards, player1.clientId, TransportPipeline.ReliableAndInOrder);
         NetworkServerProcessing.SendMessageToClient(updateAllClientBoards, player2.clientId, TransportPipeline.ReliableAndInOrder);
 
-        if (currentTurn == player1)
+        if (!stopGame)
         {
-            SetPlayerTurn(player2);
+            if (currentTurn == player1)
+            {
+                SetPlayerTurn(player2);
+            }
+            else
+            {
+                SetPlayerTurn(player1);
+            }
         }
-        else
-        {
-            SetPlayerTurn(player1);
-        }
+
     }
 
-    public void CheckTicTacToeWinCondition(short column, short row, short playerMove)
+    public bool CheckTicTacToeWinCondition(short column, short row, short playerMove)
     {
         if (CheckVerticalAxis(column, playerMove))
         {
-            //player weens!
+            if (playerMove == player1Move)
+            {
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.WinnerSignifier.ToString(), player1.clientId, TransportPipeline.ReliableAndInOrder);
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.LoserSignifier.ToString(), player2.clientId, TransportPipeline.ReliableAndInOrder);
+            }
+            else if (playerMove == player2Move)
+            {
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.WinnerSignifier.ToString(), player2.clientId, TransportPipeline.ReliableAndInOrder);
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.LoserSignifier.ToString(), player1.clientId, TransportPipeline.ReliableAndInOrder);
+            }
+            return true;
         }
         else if (CheckHorizontalAxis(row, playerMove))
         {
-            //player weens!
+            if (playerMove == player1Move)
+            {
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.WinnerSignifier.ToString(), player1.clientId, TransportPipeline.ReliableAndInOrder);
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.LoserSignifier.ToString(), player2.clientId, TransportPipeline.ReliableAndInOrder);
+            }
+            else if (playerMove == player2Move)
+            {
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.WinnerSignifier.ToString(), player2.clientId, TransportPipeline.ReliableAndInOrder);
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.LoserSignifier.ToString(), player1.clientId, TransportPipeline.ReliableAndInOrder);
+            }
+            return true;
         }
         else if (CheckDiagonalDownRight(playerMove))
         {
-            //player weens!
+            if (playerMove == player1Move)
+            {
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.WinnerSignifier.ToString(), player1.clientId, TransportPipeline.ReliableAndInOrder);
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.LoserSignifier.ToString(), player2.clientId, TransportPipeline.ReliableAndInOrder);
+            }
+            else if (playerMove == player2Move)
+            {
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.WinnerSignifier.ToString(), player2.clientId, TransportPipeline.ReliableAndInOrder);
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.LoserSignifier.ToString(), player1.clientId, TransportPipeline.ReliableAndInOrder);
+            }
+            return true;
         }
         else if (CheckDiagonalDownLeft(playerMove))
         {
-            //player weens!
+            if (playerMove == player1Move)
+            {
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.WinnerSignifier.ToString(), player1.clientId, TransportPipeline.ReliableAndInOrder);
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.LoserSignifier.ToString(), player2.clientId, TransportPipeline.ReliableAndInOrder);
+            }
+            else if (playerMove == player2Move)
+            {
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.WinnerSignifier.ToString(), player2.clientId, TransportPipeline.ReliableAndInOrder);
+                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.LoserSignifier.ToString(), player1.clientId, TransportPipeline.ReliableAndInOrder);
+            }
+            return true;
         }
         else if (CheckIfTieHappens())
         {
             //no players ween!
+            NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.TieGameSignifier.ToString(), player1.clientId, TransportPipeline.ReliableAndInOrder);
+            NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.TieGameSignifier.ToString(), player2.clientId, TransportPipeline.ReliableAndInOrder);
+            return true;
         }
         //no ween yet :3
+        return false;
     }
 
     public void ResetGameBoard()
@@ -133,6 +197,8 @@ public class GameRoom
     {
 
     }
+
+    #region win condition checks
 
     public bool CheckVerticalAxis(short column, short playerMove)
     {
@@ -196,4 +262,39 @@ public class GameRoom
         return true;
     }
 
+    #endregion
+
+    public bool CheckIfGameRoomEmpty()
+    {
+        if (this.player1 != null && this.player2 != null)
+        {
+            return false;
+        }
+
+        return true;
+    }
+
+    // public void DeleteGameRoom()
+    // {
+    //     this.roomName = null;
+    //     this.player1 = null;
+    //     this.player2 = null;
+    //     this.gameplayBoard = null;
+    // }
+
+
+
 }
+
+/*
+PRIORITY
+- send win/lose condition to client
+- stop game
+- reset game on server/client
+- leaving game on server side
+- delete empty rooms
+
+BACKBURNER
+- send message to other player
+- observer
+*/

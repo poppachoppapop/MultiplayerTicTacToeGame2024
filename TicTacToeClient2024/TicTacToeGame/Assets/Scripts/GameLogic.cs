@@ -42,12 +42,16 @@ public enum AccountLoginStateSignifier
 
 public enum WaitingRoomLogicState
 {
+    BasicWaitingRoomState,
     WaitingForNewPlayerState
 }
 public enum TicTacToeGameState
 {
     WaitingForTurnState,
-    SelectingSquareTurn
+    CurrentPlayerTurn,
+    WinnerState,
+    LoserState,
+    TieGameState
 }
 
 public enum GameStateManager
