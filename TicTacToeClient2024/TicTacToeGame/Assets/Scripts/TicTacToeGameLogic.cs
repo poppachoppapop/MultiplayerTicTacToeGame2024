@@ -35,6 +35,7 @@ public class TicTacToeGameLogic : GameLogic
     //Waiting Room GameObjects
     GameObject roomNameInputField;
     GameObject waitingRoomBackButton;
+    GameObject WaitingForPlayerBackButton;
     GameObject createRoomButton;
     GameObject memeText;
     GameObject memeImage;
@@ -123,6 +124,10 @@ public class TicTacToeGameLogic : GameLogic
             else if (obj.name == "WaitingRoomBackButton")
             {
                 waitingRoomBackButton = (GameObject)obj;
+            }
+            else if (obj.name == "WaitingForPlayerBackButton")
+            {
+                WaitingForPlayerBackButton = (GameObject)obj;
             }
             else if (obj.name == "CreateRoomButton")
             {
@@ -235,6 +240,7 @@ public class TicTacToeGameLogic : GameLogic
         //waiting room buttons
         createRoomButton.GetComponent<Button>().onClick.AddListener(CreateRoomButtonPressed);
         waitingRoomBackButton.GetComponent<Button>().onClick.AddListener(WaitingRoomBackButtonPressed);
+        WaitingForPlayerBackButton.GetComponent <Button>().onClick.AddListener(WaitingForPlayerBackButtonPressed);
 
         //gameplay board buttons
         gameplayBackButton.GetComponent<Button>().onClick.AddListener(GameplayBackButtonPressed);
@@ -294,6 +300,8 @@ public class TicTacToeGameLogic : GameLogic
                 createRoomButton.SetActive(false);
                 memeImage.SetActive(false);
                 memeText.SetActive(false);
+
+                WaitingForPlayerBackButton.SetActive(true);
             }
             else if (currentWaitingRoomState == WaitingRoomLogicState.BasicWaitingRoomState)
             {
@@ -304,6 +312,7 @@ public class TicTacToeGameLogic : GameLogic
                 memeText.SetActive(true);
 
                 waitingForPlayer2Text.SetActive(false);
+                WaitingForPlayerBackButton.SetActive(false);
             }
         }
         else if (currentGameState == GameStateManager.TicTacToeBoardLogic)
@@ -458,6 +467,15 @@ public class TicTacToeGameLogic : GameLogic
         SetActiveGameCanvas();
         RefreshUI();
         NetworkClientProcessing.SendMessageToServer(ClientToServerSignifiers.ReturnToLoginScreen.ToString(), TransportPipeline.ReliableAndInOrder);
+    }
+
+    public void WaitingForPlayerBackButtonPressed()
+    {
+        currentGameState = GameStateManager.WaitingRoomLogic;
+        currentWaitingRoomState = WaitingRoomLogicState.BasicWaitingRoomState;
+        SetActiveGameCanvas();
+        RefreshUI();
+        NetworkClientProcessing.SendMessageToServer(ClientToServerSignifiers.ExitGame.ToString(), TransportPipeline.ReliableAndInOrder);
     }
 
     #endregion
@@ -653,12 +671,13 @@ public class TicTacToeGameLogic : GameLogic
                 RefreshUI();
             }
 
-            // if (signifier == ServerToClientSignifiers.waitingForNewPlayer)
-            // {
-            //     currentWaitingRoomState = WaitingRoomLogicState.WaitingForNewPlayerState;
-            //     SetActiveGameCanvas();
-            //     RefreshUI();
-            // }
+            if (signifier == ServerToClientSignifiers.waitingForNewPlayer)
+            {
+                currentGameState = GameStateManager.WaitingRoomLogic;
+                currentWaitingRoomState = WaitingRoomLogicState.WaitingForNewPlayerState;
+                SetActiveGameCanvas();
+                RefreshUI();
+            }
         }
 
 

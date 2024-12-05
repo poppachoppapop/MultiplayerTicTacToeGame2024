@@ -36,7 +36,7 @@ static public class NetworkServerProcessing
 
     #region Setup
     static NetworkServer networkServer;
-    static GameLogic gameLogic;
+    static public ServerGameLogic gameLogic;
 
     static public void SetNetworkServer(NetworkServer NetworkServer)
     {
@@ -46,7 +46,7 @@ static public class NetworkServerProcessing
     {
         return networkServer;
     }
-    static public void SetGameLogic(GameLogic GameLogic)
+    static public void SetGameLogic(ServerGameLogic GameLogic)
     {
         gameLogic = GameLogic;
     }

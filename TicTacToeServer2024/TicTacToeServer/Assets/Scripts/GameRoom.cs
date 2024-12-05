@@ -18,9 +18,6 @@ public class GameRoom
     const short player1Move = 1;
     const short player2Move = 2;
 
-
-    bool winConditionMet;
-
     Player currentTurn;
 
     public GameRoom(string roomName, Player player1)
@@ -40,11 +37,22 @@ public class GameRoom
     {
         if (clientID == this.player1.clientId)
         {
-            this.player1 = null;
+            this.player1 = player2;
+            player2 = null;
         }
         else if (clientID == this.player2.clientId)
         {
             this.player2 = null;
+        }
+
+        if(this.player1 == null)
+        {
+            //delete room
+            NetworkServerProcessing.gameLogic.roomDictionary.Remove(this.roomName);
+        }
+        else
+        {
+            NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.waitingForNewPlayer.ToString(), this.player1.clientId, TransportPipeline.ReliableAndInOrder);
         }
     }
 
@@ -193,11 +201,6 @@ public class GameRoom
         NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.CurrentPlayerTurn.ToString(), currentTurn.clientId, TransportPipeline.ReliableAndInOrder);
     }
 
-    public void GameOver()
-    {
-
-    }
-
     #region win condition checks
 
     public bool CheckVerticalAxis(short column, short playerMove)
@@ -264,23 +267,6 @@ public class GameRoom
 
     #endregion
 
-    public bool CheckIfGameRoomEmpty()
-    {
-        if (this.player1 != null && this.player2 != null)
-        {
-            return false;
-        }
-
-        return true;
-    }
-    public bool CheckIfPlayerLeftGame()
-    {
-        if (this.player1 != null || this.player2 == null)
-        {
-            return false;
-        }
-        return true;
-    }
 }
 
 /*

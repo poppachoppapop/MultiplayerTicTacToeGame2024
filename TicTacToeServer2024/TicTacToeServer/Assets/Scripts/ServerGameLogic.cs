@@ -15,7 +15,7 @@ public class ServerGameLogic : GameLogic
     //list of players within the entire server
     Dictionary<int, Player> playersInServer = new Dictionary<int, Player>();
 
-    Dictionary<string, GameRoom> roomDictionary = new Dictionary<string, GameRoom>();
+    public Dictionary<string, GameRoom> roomDictionary = new Dictionary<string, GameRoom>();
 
     //int resetGameCounter = 0;
 
@@ -124,20 +124,8 @@ public class ServerGameLogic : GameLogic
 
         else if (signifier == ClientToServerSignifiers.ExitGame)
         {
-            //if()
-            string roomToDelete = playersInServer[clientID].currentGameRoom.ToString();
+            //string roomToDelete = playersInServer[clientID].currentGameRoom.roomName;
             playersInServer[clientID].currentGameRoom.RemovePlayerFromRoom(clientID);
-            Debug.Log("player has disconnected, waiting.");
-
-            if(playersInServer[clientID].currentGameRoom.CheckIfPlayerLeftGame())
-            {
-                NetworkServerProcessing.SendMessageToClient(ServerToClientSignifiers.waitingForNewPlayer.ToString(), int.Parse(roomToDelete), TransportPipeline.ReliableAndInOrder);
-            }
-
-            if (playersInServer[clientID].currentGameRoom.CheckIfGameRoomEmpty())
-            {
-                roomDictionary.Remove(roomToDelete);
-            }
         }
 
         else if (signifier == ClientToServerSignifiers.ResetGame)
