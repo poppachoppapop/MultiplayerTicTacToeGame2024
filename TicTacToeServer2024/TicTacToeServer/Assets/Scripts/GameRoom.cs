@@ -274,11 +274,11 @@ PRIORITY
 -̶ s̶e̶n̶d̶ w̶i̶n̶/̶l̶o̶s̶e̶ c̶o̶n̶d̶i̶t̶i̶o̶n̶ t̶o̶ c̶l̶i̶e̶n̶t̶
 -̶ s̶t̶o̶p̶ g̶a̶m̶e̶
 -̶ r̶e̶s̶e̶t̶ g̶a̶m̶e̶ o̶n̶ s̶e̶r̶v̶e̶r̶/̶c̶l̶i̶e̶n̶t̶
-- leaving game on server side
-    1. person who leaves need get removed from game room
-    2. person who didnt leave needs to get sent to waiting room
-    3. if both people leave, delete room
-- delete empty rooms
+-̶ l̶e̶a̶v̶i̶n̶g̶ g̶a̶m̶e̶ o̶n̶ s̶e̶r̶v̶e̶r̶ s̶i̶d̶e̶
+    1̶.̶ p̶e̶r̶s̶o̶n̶ w̶h̶o̶ l̶e̶a̶v̶e̶s̶ n̶e̶e̶d̶ g̶e̶t̶ r̶e̶m̶o̶v̶e̶d̶ f̶r̶o̶m̶ g̶a̶m̶e̶ r̶o̶o̶m̶
+    2̶.̶ p̶e̶r̶s̶o̶n̶ w̶h̶o̶ d̶i̶d̶n̶t̶ l̶e̶a̶v̶e̶ n̶e̶e̶d̶s̶ t̶o̶ g̶e̶t̶ s̶e̶n̶t̶ t̶o̶ w̶a̶i̶t̶i̶n̶g̶ r̶o̶o̶m̶
+    3̶.̶ i̶f̶ b̶o̶t̶h̶ p̶e̶o̶p̶l̶e̶ l̶e̶a̶v̶e̶,̶ d̶e̶l̶e̶t̶e̶ r̶o̶o̶m̶
+-̶ d̶e̶l̶e̶t̶e̶ e̶m̶p̶t̶y̶ r̶o̶o̶m̶s̶
 
 BACKBURNER
 - send message to other player
