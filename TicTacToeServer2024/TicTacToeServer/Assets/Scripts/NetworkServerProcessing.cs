@@ -74,7 +74,7 @@ static public class ServerToClientSignifiers
     public const int LoginAttemptSuccessful = 201;
     public const int RegisterAccountSuccessful = 202;
     public const int AccountErrorMessage = 203;
-    public const int waitingForNewPlayer = 204;
+    public const int WaitingForNewPlayer = 204;
     public const int StartGame = 205;
     public const int CurrentPlayerTurn = 206;
     public const int NotCurrentTurn = 207;
